@@ -289,6 +289,10 @@ namespace Steam_Desktop_Authenticator
                 File.WriteAllText(filename, toWriteFileContents);
                 entry.IV = newIV;
                 entry.Salt = newSalt;
+
+                // Keep the proxy sidecar in step with its maFile, otherwise it stays readable
+                // under the old passkey after the maFile has moved to the new one.
+                ProxyStore.Reencrypt(entry.SteamID, oldKey, newKey);
             }
 
             this.Encrypted = toEncrypt;
@@ -319,7 +323,16 @@ namespace Steam_Desktop_Authenticator
                 this.Encrypted = false;
             }
 
-            if (this.Save() && deleteMaFile)
+            bool saved = this.Save();
+
+            if (saved)
+            {
+                // The proxy sidecar can hold credentials, so it must never outlive its
+                // account in the manifest.
+                ProxyStore.Delete(account.Session.SteamID);
+            }
+
+            if (saved && deleteMaFile)
             {
                 try
                 {

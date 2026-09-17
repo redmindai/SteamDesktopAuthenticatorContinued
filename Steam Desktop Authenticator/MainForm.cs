@@ -106,6 +106,8 @@ namespace Steam_Desktop_Authenticator
             }
             catch { /* use defaults: dark theme, checked */ }
             DarkTheme.Apply(this);
+            // Context menus are not part of the Controls tree, so they need theming by hand.
+            DarkTheme.Apply(menuAccountContext);
             trayIcon.Icon = this.Icon;
         }
 
@@ -207,6 +209,9 @@ namespace Steam_Desktop_Authenticator
                 else
                 {
                     MessageBox.Show("Passkey successfully " + action + "d.");
+                    // loadAccountsList() and the proxy sidecar both decrypt with this key,
+                    // so it has to follow the manifest instead of going stale until restart.
+                    passKey = newPassKey;
                     this.loadAccountsList();
                 }
             }
@@ -408,6 +413,50 @@ namespace Steam_Desktop_Authenticator
                     loadAccountInfo();
                     break;
                 }
+            }
+        }
+
+        /// <summary>
+        /// A right-click does not move the ListBox selection on its own, so the context menu
+        /// would otherwise act on whichever account was selected before.
+        /// </summary>
+        private void listAccounts_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Right) return;
+
+            int index = listAccounts.IndexFromPoint(e.Location);
+            if (index != ListBox.NoMatches)
+                listAccounts.SelectedIndex = index;
+        }
+
+        private void menuAccountContext_Opening(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            // Nothing sensible to act on until an account is selected.
+            if (currentAccount == null)
+                e.Cancel = true;
+        }
+
+        private async void menuOpenInBrowser_Click(object sender, EventArgs e)
+        {
+            if (currentAccount == null) return;
+
+            try
+            {
+                await AccountBrowserManager.OpenAsync(currentAccount, this, passKey);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Open in Browser", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void menuProxySettings_Click(object sender, EventArgs e)
+        {
+            if (currentAccount == null) return;
+
+            using (ProxySettingsForm proxyForm = new ProxySettingsForm(currentAccount, manifest.Encrypted, passKey))
+            {
+                proxyForm.ShowDialog(this);
             }
         }
 
