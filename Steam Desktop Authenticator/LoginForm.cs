@@ -443,7 +443,7 @@ namespace Steam_Desktop_Authenticator
                     if (existing == null || existing.Session == null) continue;
 
                     ProxySettings settings = ProxyStore.Load(existing.Session.SteamID, PassKey);
-                    if (settings == null || !settings.IsValid()) continue;
+                    if (settings == null || !settings.UsesProxy) continue;
 
                     // Refreshing an existing account: start from whatever it already uses.
                     if (account != null && account.Session != null && existing.Session.SteamID == account.Session.SteamID)
@@ -558,10 +558,8 @@ namespace Steam_Desktop_Authenticator
         /// <summary>Stores the proxy chosen at login time, now that the SteamID is known.</summary>
         private void SaveLoginProxy(ulong steamId, bool encrypted, string passKey)
         {
-            if (loginProxy == null)
-                ProxyStore.Delete(steamId);
-            else
-                ProxyStore.Save(steamId, loginProxy, encrypted, passKey);
+            ProxySettings chosen = loginProxy == null ? ProxySettings.DirectConnection() : loginProxy;
+            ProxyStore.Save(steamId, chosen, encrypted, passKey);
         }
 
         private class ProxyChoice

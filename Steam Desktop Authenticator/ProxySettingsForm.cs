@@ -27,6 +27,8 @@ namespace Steam_Desktop_Authenticator
         private readonly TextBox txtUsername;
         private readonly TextBox txtPassword;
         private readonly ComboBox cmbType;
+        private readonly RadioButton radDirect;
+        private readonly RadioButton radProxy;
         private readonly Button btnSave;
         private readonly Button btnCancel;
         private readonly Button btnDelete;
@@ -72,7 +74,7 @@ namespace Steam_Desktop_Authenticator
             this.persist = persist;
 
             this.Text = title;
-            this.ClientSize = new Size(340, 232);
+            this.ClientSize = new Size(340, 276);
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.StartPosition = FormStartPosition.CenterParent;
             this.MaximizeBox = false;
@@ -81,8 +83,26 @@ namespace Steam_Desktop_Authenticator
             int labelLeft = 12;
             int fieldLeft = 110;
             int fieldWidth = 216;
-            int y = 15;
+            int y = 12;
             int rowHeight = 30;
+
+            // The connection mode comes first: everything below it only matters for a proxy.
+            this.radDirect = new RadioButton();
+            this.radDirect.Text = "Direct connection (host IP)";
+            this.radDirect.Location = new Point(labelLeft, y);
+            this.radDirect.AutoSize = true;
+            this.radDirect.Checked = true;
+            this.radDirect.CheckedChanged += mode_CheckedChanged;
+            this.Controls.Add(this.radDirect);
+            y += 22;
+
+            this.radProxy = new RadioButton();
+            this.radProxy.Text = "Use proxy";
+            this.radProxy.Location = new Point(labelLeft, y);
+            this.radProxy.AutoSize = true;
+            this.radProxy.CheckedChanged += mode_CheckedChanged;
+            this.Controls.Add(this.radProxy);
+            y += 28;
 
             this.Controls.Add(MakeLabel("Type", labelLeft, y + 3));
             this.cmbType = new ComboBox();
@@ -174,9 +194,29 @@ namespace Steam_Desktop_Authenticator
                     this.numPort.Value = existing.Port;
                 this.txtUsername.Text = existing.Username;
                 this.txtPassword.Text = existing.Password;
+
+                this.radProxy.Checked = existing.Mode == ProxyMode.Proxy;
+                this.radDirect.Checked = existing.Mode != ProxyMode.Proxy;
             }
 
+            UpdateModeFields();
             UpdateCredentialFields();
+        }
+
+        private void mode_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateModeFields();
+        }
+
+        /// <summary>Direct means the proxy fields describe nothing, so they are greyed out.</summary>
+        private void UpdateModeFields()
+        {
+            bool useProxy = this.radProxy.Checked;
+            this.cmbType.Enabled = useProxy;
+            this.txtHost.Enabled = useProxy;
+            this.numPort.Enabled = useProxy;
+            this.txtUsername.Enabled = useProxy;
+            this.txtPassword.Enabled = useProxy;
         }
 
         private void cmbType_SelectedIndexChanged(object sender, EventArgs e)
@@ -200,6 +240,15 @@ namespace Steam_Desktop_Authenticator
 
         private void btnSave_Click(object sender, EventArgs e)
         {
+            ProxySettings settings;
+
+            if (this.radDirect.Checked)
+            {
+                settings = ProxySettings.DirectConnection();
+                Commit(settings);
+                return;
+            }
+
             string host = this.txtHost.Text.Trim();
             if (string.IsNullOrEmpty(host))
             {
@@ -208,8 +257,9 @@ namespace Steam_Desktop_Authenticator
             }
 
             ProxyType type = (ProxyType)this.cmbType.SelectedItem;
-            ProxySettings settings = new ProxySettings
+            settings = new ProxySettings
             {
+                Mode = ProxyMode.Proxy,
                 Type = type,
                 Host = host,
                 Port = (int)this.numPort.Value,
@@ -226,6 +276,11 @@ namespace Steam_Desktop_Authenticator
                 if (go != DialogResult.OK) return;
             }
 
+            Commit(settings);
+        }
+
+        private void Commit(ProxySettings settings)
+        {
             if (!this.persist)
             {
                 this.Result = settings;

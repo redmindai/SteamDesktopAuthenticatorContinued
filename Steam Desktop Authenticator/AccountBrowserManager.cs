@@ -75,7 +75,7 @@ namespace Steam_Desktop_Authenticator
 
             CoreWebView2EnvironmentOptions options = new CoreWebView2EnvironmentOptions();
             string arguments = PrivacyBrowserArguments;
-            if (proxy != null && proxy.IsValid())
+            if (proxy != null && proxy.UsesProxy)
                 arguments += " --proxy-server=" + proxy.ToProxyServerArgument();
             options.AdditionalBrowserArguments = arguments;
 

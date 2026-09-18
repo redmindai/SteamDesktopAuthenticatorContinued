@@ -16,6 +16,7 @@ namespace Steam_Desktop_Authenticator
     {
         private SteamGuardAccount currentAccount = null;
         private SteamGuardAccount[] allAccounts;
+        private AccountEntry[] allEntries = new AccountEntry[0];
         private List<string> updatedSessions = new List<string>();
         private Manifest manifest;
         private static SemaphoreSlim confirmationsSemaphore = new SemaphoreSlim(1, 1);
@@ -401,21 +402,15 @@ namespace Steam_Desktop_Authenticator
         // Misc UI handlers
         private void listAccounts_SelectedValueChanged(object sender, EventArgs e)
         {
-            for (int i = 0; i < allAccounts.Length; i++)
-            {
-                // Check if index is out of bounds first
-                if (i < 0 || listAccounts.SelectedIndex < 0)
-                    continue;
+            // The list holds the accounts themselves, so the selection no longer has to be
+            // matched back by name -- which also used to pick the wrong one when two
+            // accounts shared a name.
+            AccountEntry entry = listAccounts.SelectedItem as AccountEntry;
+            if (entry == null) return;
 
-                SteamGuardAccount account = allAccounts[i];
-                if (account.AccountName == (string)listAccounts.Items[listAccounts.SelectedIndex])
-                {
-                    trayAccountList.Text = account.AccountName;
-                    currentAccount = account;
-                    loadAccountInfo();
-                    break;
-                }
-            }
+            trayAccountList.Text = entry.ToString();
+            currentAccount = entry.Account;
+            loadAccountInfo();
         }
 
         /// <summary>
@@ -458,20 +453,27 @@ namespace Steam_Desktop_Authenticator
 
             using (ProxySettingsForm proxyForm = new ProxySettingsForm(currentAccount, manifest.Encrypted, passKey))
             {
-                proxyForm.ShowDialog(this);
+                if (proxyForm.ShowDialog(this) == DialogResult.OK)
+                {
+                    // Rebuild so the row shows the new mode.
+                    string selected = currentAccount.AccountName;
+                    loadAccountsList();
+                    SelectAccountByName(selected);
+                }
             }
         }
 
         private void txtAccSearch_TextChanged(object sender, EventArgs e)
         {
-            List<string> names = new List<string>(getAllNames());
-            names = names.FindAll(new Predicate<string>(IsFilter));
+            // Filter on the account name only: the mode suffix is decoration, not something
+            // the user is searching for.
+            AccountEntry[] matches = Array.FindAll(allEntries, entry => IsFilter(entry.Account.AccountName));
 
             listAccounts.Items.Clear();
-            listAccounts.Items.AddRange(names.ToArray());
+            listAccounts.Items.AddRange(matches);
 
             trayAccountList.Items.Clear();
-            trayAccountList.Items.AddRange(names.ToArray());
+            trayAccountList.Items.AddRange(matches);
         }
 
 
@@ -608,12 +610,31 @@ namespace Steam_Desktop_Authenticator
         /// Routes every Steam request this account makes through its own proxy. The proxy
         /// lives only in memory, so it has to be re-applied each time accounts are loaded.
         /// </summary>
-        private void ApplyProxy(SteamGuardAccount account)
+        private ProxySettings ApplyProxy(SteamGuardAccount account)
         {
-            if (account == null || account.Session == null) return;
+            if (account == null || account.Session == null) return null;
 
             ProxySettings settings = ProxyStore.Load(account.Session.SteamID, passKey);
             account.SetWebProxy(settings == null ? null : settings.ToWebProxy());
+            return settings;
+        }
+
+        /// <summary>
+        /// One row of the account list. Showing the connection mode next to the name is the
+        /// only place a user can see at a glance which accounts still go out on the host IP.
+        /// </summary>
+        private class AccountEntry
+        {
+            public SteamGuardAccount Account { get; private set; }
+            private readonly string label;
+
+            public AccountEntry(SteamGuardAccount account, ProxySettings proxy)
+            {
+                Account = account;
+                label = account.AccountName + "  -  " + ProxySettings.Describe(proxy);
+            }
+
+            public override string ToString() { return label; }
         }
 
         /// <summary>
@@ -644,14 +665,16 @@ namespace Steam_Desktop_Authenticator
 
             allAccounts = manifest.GetAllAccounts(passKey);
 
+            allEntries = new AccountEntry[allAccounts.Length];
+
             if (allAccounts.Length > 0)
             {
                 for (int i = 0; i < allAccounts.Length; i++)
                 {
                     SteamGuardAccount account = allAccounts[i];
-                    ApplyProxy(account);
-                    listAccounts.Items.Add(account.AccountName);
-                    trayAccountList.Items.Add(account.AccountName);
+                    allEntries[i] = new AccountEntry(account, ApplyProxy(account));
+                    listAccounts.Items.Add(allEntries[i]);
+                    trayAccountList.Items.Add(allEntries[i]);
                 }
 
                 listAccounts.SelectedIndex = 0;
@@ -662,6 +685,19 @@ namespace Steam_Desktop_Authenticator
             }
             menuDeactivateAuthenticator.Enabled = btnTradeConfirmations.Enabled = allAccounts.Length > 0;
             menuAccountOpenInBrowser.Enabled = menuAccountProxySettings.Enabled = allAccounts.Length > 0;
+        }
+
+        private void SelectAccountByName(string accountName)
+        {
+            for (int i = 0; i < listAccounts.Items.Count; i++)
+            {
+                AccountEntry entry = listAccounts.Items[i] as AccountEntry;
+                if (entry != null && entry.Account.AccountName == accountName)
+                {
+                    listAccounts.SelectedIndex = i;
+                    return;
+                }
+            }
         }
 
         private void listAccounts_KeyDown(object sender, KeyEventArgs e)
