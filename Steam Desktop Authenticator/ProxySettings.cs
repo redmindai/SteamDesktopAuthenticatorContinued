@@ -1,5 +1,6 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using System.Net;
 
 namespace Steam_Desktop_Authenticator
 {
@@ -53,6 +54,22 @@ namespace Steam_Desktop_Authenticator
         {
             string scheme = Type == ProxyType.Socks5 ? "socks5" : "http";
             return string.Format("{0}://{1}:{2}", scheme, Host, Port);
+        }
+
+        /// <summary>
+        /// Builds the proxy used by every .NET request for this account: SteamWeb through
+        /// WebClient, and SteamKit2 through SocketsHttpHandler. Both answer a proxy's Basic
+        /// challenge and both speak SOCKS5 with RFC 1929, so credentials go on directly.
+        /// Returns null when the settings are incomplete, which means "connect directly".
+        /// </summary>
+        public WebProxy ToWebProxy()
+        {
+            if (!IsValid()) return null;
+
+            WebProxy proxy = new WebProxy(ToProxyServerArgument());
+            if (HasCredentials)
+                proxy.Credentials = new NetworkCredential(Username, Password);
+            return proxy;
         }
     }
 }

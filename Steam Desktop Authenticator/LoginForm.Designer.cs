@@ -35,6 +35,9 @@
             this.label2 = new System.Windows.Forms.Label();
             this.btnSteamLogin = new System.Windows.Forms.Button();
             this.labelLoginExplanation = new System.Windows.Forms.Label();
+            this.labelProxy = new System.Windows.Forms.Label();
+            this.cmbProxy = new System.Windows.Forms.ComboBox();
+            this.btnProxyEdit = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -76,13 +79,45 @@
             this.label2.Text = "Password:";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
+            // labelProxy
+            // 
+            this.labelProxy.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelProxy.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.labelProxy.Location = new System.Drawing.Point(12, 94);
+            this.labelProxy.Name = "labelProxy";
+            this.labelProxy.Size = new System.Drawing.Size(83, 25);
+            this.labelProxy.TabIndex = 4;
+            this.labelProxy.Text = "Proxy:";
+            this.labelProxy.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // cmbProxy
+            // 
+            this.cmbProxy.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbProxy.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cmbProxy.Location = new System.Drawing.Point(101, 95);
+            this.cmbProxy.Name = "cmbProxy";
+            this.cmbProxy.Size = new System.Drawing.Size(158, 25);
+            this.cmbProxy.TabIndex = 5;
+            this.cmbProxy.SelectedIndexChanged += new System.EventHandler(this.cmbProxy_SelectedIndexChanged);
+            // 
+            // btnProxyEdit
+            // 
+            this.btnProxyEdit.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnProxyEdit.Location = new System.Drawing.Point(265, 94);
+            this.btnProxyEdit.Name = "btnProxyEdit";
+            this.btnProxyEdit.Size = new System.Drawing.Size(56, 27);
+            this.btnProxyEdit.TabIndex = 6;
+            this.btnProxyEdit.Text = "Edit...";
+            this.btnProxyEdit.UseVisualStyleBackColor = true;
+            this.btnProxyEdit.Click += new System.EventHandler(this.btnProxyEdit_Click);
+            // 
             // btnSteamLogin
             // 
             this.btnSteamLogin.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSteamLogin.Location = new System.Drawing.Point(224, 147);
+            this.btnSteamLogin.Location = new System.Drawing.Point(224, 186);
             this.btnSteamLogin.Name = "btnSteamLogin";
             this.btnSteamLogin.Size = new System.Drawing.Size(110, 33);
-            this.btnSteamLogin.TabIndex = 4;
+            this.btnSteamLogin.TabIndex = 8;
             this.btnSteamLogin.Text = "Login";
             this.btnSteamLogin.UseVisualStyleBackColor = true;
             this.btnSteamLogin.Click += new System.EventHandler(this.btnSteamLogin_Click);
@@ -90,10 +125,10 @@
             // labelLoginExplanation
             // 
             this.labelLoginExplanation.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelLoginExplanation.Location = new System.Drawing.Point(15, 98);
+            this.labelLoginExplanation.Location = new System.Drawing.Point(15, 133);
             this.labelLoginExplanation.Name = "labelLoginExplanation";
             this.labelLoginExplanation.Size = new System.Drawing.Size(306, 46);
-            this.labelLoginExplanation.TabIndex = 5;
+            this.labelLoginExplanation.TabIndex = 7;
             this.labelLoginExplanation.Text = "This will activate Steam Desktop Authenticator on your Steam account. This requir" +
     "es a phone number that can receive SMS.";
             // 
@@ -102,7 +137,10 @@
             this.AcceptButton = this.btnSteamLogin;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(346, 193);
+            this.ClientSize = new System.Drawing.Size(346, 232);
+            this.Controls.Add(this.btnProxyEdit);
+            this.Controls.Add(this.cmbProxy);
+            this.Controls.Add(this.labelProxy);
             this.Controls.Add(this.labelLoginExplanation);
             this.Controls.Add(this.btnSteamLogin);
             this.Controls.Add(this.txtPassword);
@@ -126,6 +164,9 @@
 
         #endregion
 
+        private System.Windows.Forms.Label labelProxy;
+        private System.Windows.Forms.ComboBox cmbProxy;
+        private System.Windows.Forms.Button btnProxyEdit;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox txtUsername;
         private System.Windows.Forms.TextBox txtPassword;

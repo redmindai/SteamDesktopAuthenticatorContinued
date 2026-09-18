@@ -141,6 +141,7 @@ namespace Steam_Desktop_Authenticator
         private void btnSteamLogin_Click(object sender, EventArgs e)
         {
             var loginForm = new LoginForm();
+            loginForm.PassKey = passKey;
             loginForm.ShowDialog();
             this.loadAccountsList();
         }
@@ -273,6 +274,7 @@ namespace Steam_Desktop_Authenticator
         private void menuImportAccount_Click(object sender, EventArgs e)
         {
             ImportAccountForm currentImport_maFile_Form = new ImportAccountForm();
+            currentImport_maFile_Form.PassKey = passKey;
             currentImport_maFile_Form.ShowDialog();
             loadAccountsList();
         }
@@ -598,7 +600,20 @@ namespace Steam_Desktop_Authenticator
         private void PromptRefreshLogin(SteamGuardAccount account)
         {
             var loginForm = new LoginForm(LoginForm.LoginType.Refresh, account);
+            loginForm.PassKey = passKey;
             loginForm.ShowDialog();
+        }
+
+        /// <summary>
+        /// Routes every Steam request this account makes through its own proxy. The proxy
+        /// lives only in memory, so it has to be re-applied each time accounts are loaded.
+        /// </summary>
+        private void ApplyProxy(SteamGuardAccount account)
+        {
+            if (account == null || account.Session == null) return;
+
+            ProxySettings settings = ProxyStore.Load(account.Session.SteamID, passKey);
+            account.SetWebProxy(settings == null ? null : settings.ToWebProxy());
         }
 
         /// <summary>
@@ -634,6 +649,7 @@ namespace Steam_Desktop_Authenticator
                 for (int i = 0; i < allAccounts.Length; i++)
                 {
                     SteamGuardAccount account = allAccounts[i];
+                    ApplyProxy(account);
                     listAccounts.Items.Add(account.AccountName);
                     trayAccountList.Items.Add(account.AccountName);
                 }

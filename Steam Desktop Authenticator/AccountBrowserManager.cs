@@ -18,6 +18,36 @@ namespace Steam_Desktop_Authenticator
         private static readonly Dictionary<ulong, CoreWebView2Environment> environments =
             new Dictionary<ulong, CoreWebView2Environment>();
 
+        /// <summary>
+        /// Stops Edge's own background services from going out over the account's proxy.
+        /// Without these the very first connection is Edge's configuration service, not Steam,
+        /// which burns metered proxy traffic and puts a recognisable Edge fingerprint on the IP.
+        ///
+        /// --disable-background-networking        the umbrella switch: component updater, Safe
+        ///                                        Browsing list updates, and Edge's experimentation
+        ///                                        and configuration service (config.edge.skype.com)
+        /// --disable-component-update             no component/CRX downloads
+        /// --disable-sync                         no Microsoft account sync
+        /// --disable-domain-reliability           no network-error telemetry uploads
+        /// --disable-breakpad                     no crash report uploads
+        /// --disable-client-side-phishing-detection   no phishing model downloads
+        /// --no-pings                             no hyperlink auditing pings
+        /// --no-first-run / --no-default-browser-check   no first-run service calls
+        /// --disable-features=...                 OptimizationHints and Translate both fetch on
+        ///                                        their own; MediaRouter probes the local network
+        /// </summary>
+        private const string PrivacyBrowserArguments =
+            "--disable-background-networking " +
+            "--disable-component-update " +
+            "--disable-sync " +
+            "--disable-domain-reliability " +
+            "--disable-breakpad " +
+            "--disable-client-side-phishing-detection " +
+            "--no-pings " +
+            "--no-first-run " +
+            "--no-default-browser-check " +
+            "--disable-features=OptimizationHints,Translate,MediaRouter,AutofillServerCommunication";
+
         public static string GetProfileFolder(ulong steamId)
         {
             return Path.Combine(
@@ -44,8 +74,10 @@ namespace Steam_Desktop_Authenticator
                 return existing;
 
             CoreWebView2EnvironmentOptions options = new CoreWebView2EnvironmentOptions();
+            string arguments = PrivacyBrowserArguments;
             if (proxy != null && proxy.IsValid())
-                options.AdditionalBrowserArguments = "--proxy-server=" + proxy.ToProxyServerArgument();
+                arguments += " --proxy-server=" + proxy.ToProxyServerArgument();
+            options.AdditionalBrowserArguments = arguments;
 
             string folder = GetProfileFolder(steamId);
             Directory.CreateDirectory(folder);

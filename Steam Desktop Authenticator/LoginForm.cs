@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using SteamAuth;
@@ -13,6 +16,25 @@ namespace Steam_Desktop_Authenticator
         public SteamGuardAccount account;
         public LoginType LoginReason;
         public SessionData Session;
+
+        /// <summary>Manifest passkey, needed to read other accounts' proxies and to save this one's.</summary>
+        public string PassKey { get; set; }
+
+        /// <summary>
+        /// Proxy chosen before logging in. The login is the most IP-sensitive moment and it
+        /// happens before a SteamID exists, so the choice cannot come from a sidecar.
+        /// </summary>
+        private ProxySettings loginProxy;
+        private bool populatingProxies;
+
+        /// <summary>
+        /// The proxy the user picked, readable once ShowDialog returns. Import needs it:
+        /// there the account is written by the caller, not by this form.
+        /// </summary>
+        public ProxySettings SelectedProxy
+        {
+            get { return loginProxy; }
+        }
 
         public LoginForm(LoginType loginReason = LoginType.Initial, SteamGuardAccount account = null)
         {
@@ -76,8 +98,8 @@ namespace Steam_Desktop_Authenticator
             string username = txtUsername.Text;
             string password = txtPassword.Text;
 
-            // Start a new SteamClient instance
-            SteamClient steamClient = new SteamClient();
+            // Start a new SteamClient instance, routed through the chosen proxy
+            SteamClient steamClient = new SteamClient(BuildSteamConfiguration());
 
             // Connect to Steam
             steamClient.Connect();
@@ -126,6 +148,7 @@ namespace Steam_Desktop_Authenticator
                 SteamID = authSession.SteamID.ConvertToUInt64(),
                 AccessToken = pollResponse.AccessToken,
                 RefreshToken = pollResponse.RefreshToken,
+                WebProxy = loginProxy == null ? null : loginProxy.ToWebProxy(),
             };
 
             //Login succeeded
@@ -160,6 +183,7 @@ namespace Steam_Desktop_Authenticator
 
             // Begin linking mobile authenticator
             AuthenticatorLinker linker = new AuthenticatorLinker(sessionData);
+            linker.WebProxy = sessionData.WebProxy;
 
             AuthenticatorLinker.LinkResult linkResponse = AuthenticatorLinker.LinkResult.GeneralFailure;
             while (linkResponse != AuthenticatorLinker.LinkResult.AwaitingFinalization)
@@ -256,6 +280,10 @@ namespace Steam_Desktop_Authenticator
                 return;
             }
 
+            // The SteamID exists now, so the proxy can finally be keyed to it. Saved here
+            // rather than at the end so an aborted link removes it along with the account.
+            SaveLoginProxy(linker.LinkedAccount.Session.SteamID, passKey != null, passKey);
+
             MessageBox.Show("The Mobile Authenticator has not yet been linked. Before finalizing the authenticator, please write down your revocation code: " + linker.LinkedAccount.RevocationCode);
 
             AuthenticatorLinker.FinalizeResult finalizeResponse = AuthenticatorLinker.FinalizeResult.GeneralFailure;
@@ -340,6 +368,11 @@ namespace Steam_Desktop_Authenticator
             }
 
             man.SaveAccount(account, passKey != null, passKey);
+            if (account.Session != null)
+            {
+                SaveLoginProxy(account.Session.SteamID, passKey != null, passKey);
+                account.SetWebProxy(loginProxy == null ? null : loginProxy.ToWebProxy());
+            }
             if (IsRefreshing)
             {
                 MessageBox.Show("Your session was refreshed.", "Steam Login", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -358,6 +391,201 @@ namespace Steam_Desktop_Authenticator
             {
                 txtUsername.Text = account.AccountName;
             }
+            PopulateProxies();
+        }
+
+        /// <summary>
+        /// Offers a direct connection, every proxy already configured for another account,
+        /// and a custom one. Re-using an existing entry is the common case when several
+        /// accounts are meant to share an IP.
+        /// </summary>
+        private void PopulateProxies()
+        {
+            populatingProxies = true;
+            try
+            {
+                cmbProxy.Items.Clear();
+                cmbProxy.Items.Add(ProxyChoice.Direct());
+
+                ProxySettings preselect;
+                foreach (ProxySettings known in LoadKnownProxies(out preselect))
+                    cmbProxy.Items.Add(new ProxyChoice(known));
+
+                cmbProxy.Items.Add(ProxyChoice.Custom());
+
+                cmbProxy.SelectedIndex = 0;
+                loginProxy = null;
+
+                if (preselect != null)
+                    SelectProxy(preselect);
+            }
+            finally
+            {
+                populatingProxies = false;
+            }
+        }
+
+        /// <summary>
+        /// Reads the proxies of accounts already in the manifest. An encrypted manifest with
+        /// no passkey simply yields nothing, which is not an error here.
+        /// </summary>
+        private List<ProxySettings> LoadKnownProxies(out ProxySettings thisAccountProxy)
+        {
+            thisAccountProxy = null;
+            var found = new List<ProxySettings>();
+            var seen = new HashSet<string>();
+
+            try
+            {
+                Manifest manifest = Manifest.GetManifest();
+                foreach (SteamGuardAccount existing in manifest.GetAllAccounts(PassKey))
+                {
+                    if (existing == null || existing.Session == null) continue;
+
+                    ProxySettings settings = ProxyStore.Load(existing.Session.SteamID, PassKey);
+                    if (settings == null || !settings.IsValid()) continue;
+
+                    // Refreshing an existing account: start from whatever it already uses.
+                    if (account != null && account.Session != null && existing.Session.SteamID == account.Session.SteamID)
+                        thisAccountProxy = settings;
+
+                    if (seen.Add(settings.ToProxyServerArgument()))
+                        found.Add(settings);
+                }
+            }
+            catch (Exception)
+            {
+                // A broken manifest must not block logging in.
+            }
+
+            return found;
+        }
+
+        private void SelectProxy(ProxySettings settings)
+        {
+            if (settings == null)
+            {
+                cmbProxy.SelectedIndex = 0;
+                loginProxy = null;
+                return;
+            }
+
+            for (int i = 0; i < cmbProxy.Items.Count; i++)
+            {
+                ProxyChoice choice = cmbProxy.Items[i] as ProxyChoice;
+                if (choice != null && choice.Settings != null &&
+                    choice.Settings.ToProxyServerArgument() == settings.ToProxyServerArgument())
+                {
+                    cmbProxy.SelectedIndex = i;
+                    loginProxy = settings;
+                    return;
+                }
+            }
+
+            // Newly typed in: insert it just before the "Custom proxy..." entry.
+            // Restore rather than clear the guard: SelectProxy is also called from inside
+            // PopulateProxies, which is still populating and relies on it staying set.
+            bool wasPopulating = populatingProxies;
+            populatingProxies = true;
+            try
+            {
+                cmbProxy.Items.Insert(cmbProxy.Items.Count - 1, new ProxyChoice(settings));
+                cmbProxy.SelectedIndex = cmbProxy.Items.Count - 2;
+            }
+            finally
+            {
+                populatingProxies = wasPopulating;
+            }
+            loginProxy = settings;
+        }
+
+        private void cmbProxy_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (populatingProxies) return;
+
+            ProxyChoice choice = cmbProxy.SelectedItem as ProxyChoice;
+            if (choice == null) return;
+
+            if (choice.IsCustom)
+            {
+                EditProxy(null);
+                return;
+            }
+
+            loginProxy = choice.Settings;
+        }
+
+        private void btnProxyEdit_Click(object sender, EventArgs e)
+        {
+            EditProxy(loginProxy);
+        }
+
+        private void EditProxy(ProxySettings initial)
+        {
+            using (ProxySettingsForm editor = new ProxySettingsForm(initial))
+            {
+                if (editor.ShowDialog(this) == DialogResult.OK)
+                    SelectProxy(editor.Result);
+                else
+                    SelectProxy(loginProxy);
+            }
+        }
+
+        /// <summary>
+        /// Pins the CM connection to WebSocket: the TCP transport is a raw socket that no
+        /// proxy setting can reach, so the default would send some logins out directly.
+        /// Every purpose gets the same proxy, so WebAPI and CDN stay on the account's IP too.
+        /// </summary>
+        private SteamConfiguration BuildSteamConfiguration()
+        {
+            IWebProxy proxy = loginProxy == null ? null : loginProxy.ToWebProxy();
+
+            return SteamConfiguration.Create(builder =>
+                builder
+                    .WithProtocolTypes(ProtocolTypes.WebSocket)
+                    .WithHttpClientFactory(purpose =>
+                    {
+                        var handler = new SocketsHttpHandler();
+                        if (proxy != null)
+                        {
+                            handler.Proxy = proxy;
+                            handler.UseProxy = true;
+                        }
+                        return new HttpClient(handler);
+                    }));
+        }
+
+        /// <summary>Stores the proxy chosen at login time, now that the SteamID is known.</summary>
+        private void SaveLoginProxy(ulong steamId, bool encrypted, string passKey)
+        {
+            if (loginProxy == null)
+                ProxyStore.Delete(steamId);
+            else
+                ProxyStore.Save(steamId, loginProxy, encrypted, passKey);
+        }
+
+        private class ProxyChoice
+        {
+            public ProxySettings Settings { get; private set; }
+            public bool IsCustom { get; private set; }
+            private readonly string label;
+
+            public ProxyChoice(ProxySettings settings)
+            {
+                Settings = settings;
+                label = settings.ToProxyServerArgument() + (settings.HasCredentials ? "  (auth)" : "");
+            }
+
+            private ProxyChoice(string text, bool isCustom)
+            {
+                label = text;
+                IsCustom = isCustom;
+            }
+
+            public static ProxyChoice Direct() { return new ProxyChoice("Direct connection", false); }
+            public static ProxyChoice Custom() { return new ProxyChoice("Custom proxy...", true); }
+
+            public override string ToString() { return label; }
         }
 
         public enum LoginType

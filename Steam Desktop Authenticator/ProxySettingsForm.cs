@@ -6,11 +6,18 @@ using System.Windows.Forms;
 namespace Steam_Desktop_Authenticator
 {
     /// <summary>
-    /// Edits the proxy sidecar for one account. The proxy applies to that account's embedded
-    /// browser only; code generation and confirmations keep using the direct connection.
+    /// Edits proxy settings, in one of two modes.
+    ///
+    /// Bound to an account: reads and writes that account's sidecar, and pushes the change
+    /// onto the live SteamGuardAccount so it takes effect without a restart.
+    ///
+    /// Detached: edits a ProxySettings and hands it back through <see cref="Result"/> without
+    /// touching disk. Used while adding a new account, where no SteamID exists yet.
     /// </summary>
     public class ProxySettingsForm : Form
     {
+        private readonly bool persist;
+        private readonly SteamGuardAccount account;
         private readonly ulong steamId;
         private readonly bool encrypted;
         private readonly string passKey;
@@ -23,14 +30,48 @@ namespace Steam_Desktop_Authenticator
         private readonly Button btnSave;
         private readonly Button btnCancel;
         private readonly Button btnDelete;
+        private readonly ToolTip toolTip = new ToolTip();
 
+        /// <summary>Detached mode only: what the user entered, or null if they cleared it.</summary>
+        public ProxySettings Result { get; private set; }
+
+        /// <summary>Account-bound mode: persists to the sidecar and to the live account.</summary>
         public ProxySettingsForm(SteamGuardAccount account, bool encrypted, string passKey)
+            : this(String.Format("Proxy - {0}", account.AccountName), true)
         {
+            this.account = account;
             this.steamId = account.Session.SteamID;
             this.encrypted = encrypted;
             this.passKey = passKey;
 
-            this.Text = String.Format("Proxy - {0}", account.AccountName);
+            bool sidecarExists = ProxyStore.Exists(this.steamId);
+            this.btnDelete.Enabled = sidecarExists;
+
+            ProxySettings existing = ProxyStore.Load(this.steamId, passKey);
+            if (existing == null && sidecarExists)
+            {
+                // Present but unreadable: wrong or missing passkey, or a corrupt file.
+                // Saving would silently overwrite it, so make that the user's explicit choice.
+                MessageBox.Show("A proxy is saved for this account but could not be read. Saving will replace it.",
+                    "Proxy", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+
+            Populate(existing);
+        }
+
+        /// <summary>Detached mode: edits a value, saves nothing.</summary>
+        public ProxySettingsForm(ProxySettings initial)
+            : this("Proxy", false)
+        {
+            this.btnDelete.Enabled = initial != null;
+            Populate(initial);
+        }
+
+        private ProxySettingsForm(string title, bool persist)
+        {
+            this.persist = persist;
+
+            this.Text = title;
             this.ClientSize = new Size(340, 232);
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.StartPosition = FormStartPosition.CenterParent;
@@ -87,7 +128,7 @@ namespace Steam_Desktop_Authenticator
             y += rowHeight + 8;
 
             this.btnDelete = new Button();
-            this.btnDelete.Text = "Delete";
+            this.btnDelete.Text = persist ? "Delete" : "Clear";
             this.btnDelete.Location = new Point(labelLeft, y);
             this.btnDelete.Size = new Size(85, 28);
             this.btnDelete.Click += btnDelete_Click;
@@ -101,7 +142,7 @@ namespace Steam_Desktop_Authenticator
             this.Controls.Add(this.btnCancel);
 
             this.btnSave = new Button();
-            this.btnSave.Text = "Save";
+            this.btnSave.Text = persist ? "Save" : "OK";
             this.btnSave.Location = new Point(246, y);
             this.btnSave.Size = new Size(80, 28);
             this.btnSave.Click += btnSave_Click;
@@ -110,7 +151,6 @@ namespace Steam_Desktop_Authenticator
             this.AcceptButton = this.btnSave;
             this.CancelButton = this.btnCancel;
 
-            LoadExisting();
             DarkTheme.Apply(this);
         }
 
@@ -124,31 +164,17 @@ namespace Steam_Desktop_Authenticator
             return label;
         }
 
-        private void LoadExisting()
+        private void Populate(ProxySettings existing)
         {
-            bool sidecarExists = ProxyStore.Exists(this.steamId);
-            this.btnDelete.Enabled = sidecarExists;
-
-            ProxySettings existing = ProxyStore.Load(this.steamId, this.passKey);
-            if (existing == null)
+            if (existing != null)
             {
-                if (sidecarExists)
-                {
-                    // Present but unreadable: wrong or missing passkey, or a corrupt file.
-                    // Saving would silently overwrite it, so make that the user's explicit choice.
-                    MessageBox.Show("A proxy is saved for this account but could not be read. Saving will replace it.",
-                        "Proxy", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                }
-                UpdateCredentialFields();
-                return;
+                this.cmbType.SelectedItem = existing.Type;
+                this.txtHost.Text = existing.Host;
+                if (existing.Port >= this.numPort.Minimum && existing.Port <= this.numPort.Maximum)
+                    this.numPort.Value = existing.Port;
+                this.txtUsername.Text = existing.Username;
+                this.txtPassword.Text = existing.Password;
             }
-
-            this.cmbType.SelectedItem = existing.Type;
-            this.txtHost.Text = existing.Host;
-            if (existing.Port >= this.numPort.Minimum && existing.Port <= this.numPort.Maximum)
-                this.numPort.Value = existing.Port;
-            this.txtUsername.Text = existing.Username;
-            this.txtPassword.Text = existing.Password;
 
             UpdateCredentialFields();
         }
@@ -159,14 +185,17 @@ namespace Steam_Desktop_Authenticator
         }
 
         /// <summary>
-        /// Chromium only answers proxy auth challenges over HTTP(S); a SOCKS5 proxy never raises
-        /// BasicAuthenticationRequested, so credentials there would be silently ignored.
+        /// .NET speaks SOCKS5 with RFC 1929, but Chromium offers only "no authentication",
+        /// so an authenticated SOCKS5 proxy would work everywhere except the built-in browser.
         /// </summary>
         private void UpdateCredentialFields()
         {
-            bool supported = (ProxyType)this.cmbType.SelectedItem == ProxyType.Http;
-            this.txtUsername.Enabled = supported;
-            this.txtPassword.Enabled = supported;
+            bool socks = (ProxyType)this.cmbType.SelectedItem == ProxyType.Socks5;
+            this.txtUsername.Enabled = this.txtPassword.Enabled = true;
+
+            string warning = socks ? "Chromium ignores SOCKS5 credentials, so the built-in browser cannot use them." : string.Empty;
+            this.toolTip.SetToolTip(this.txtUsername, warning);
+            this.toolTip.SetToolTip(this.txtPassword, warning);
         }
 
         private void btnSave_Click(object sender, EventArgs e)
@@ -178,6 +207,33 @@ namespace Steam_Desktop_Authenticator
                 return;
             }
 
+            ProxyType type = (ProxyType)this.cmbType.SelectedItem;
+            ProxySettings settings = new ProxySettings
+            {
+                Type = type,
+                Host = host,
+                Port = (int)this.numPort.Value,
+                Username = NullIfEmpty(this.txtUsername.Text),
+                Password = NullIfEmpty(this.txtPassword.Text)
+            };
+
+            if (type == ProxyType.Socks5 && settings.HasCredentials)
+            {
+                DialogResult go = MessageBox.Show(
+                    "Chromium does not support SOCKS5 authentication, so the built-in browser will not be able to use this proxy. " +
+                    "Steam code generation and confirmations will still work.\n\nSave anyway?",
+                    "Proxy", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+                if (go != DialogResult.OK) return;
+            }
+
+            if (!this.persist)
+            {
+                this.Result = settings;
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+                return;
+            }
+
             if (this.encrypted && string.IsNullOrEmpty(this.passKey))
             {
                 MessageBox.Show("Your manifest is encrypted but no passkey is loaded, so the proxy cannot be saved securely.",
@@ -185,31 +241,29 @@ namespace Steam_Desktop_Authenticator
                 return;
             }
 
-            ProxyType type = (ProxyType)this.cmbType.SelectedItem;
-            ProxySettings settings = new ProxySettings
-            {
-                Type = type,
-                Host = host,
-                Port = (int)this.numPort.Value,
-                Username = type == ProxyType.Http ? NullIfEmpty(this.txtUsername.Text) : null,
-                Password = type == ProxyType.Http ? NullIfEmpty(this.txtPassword.Text) : null
-            };
-
             if (!ProxyStore.Save(this.steamId, settings, this.encrypted, this.passKey))
             {
                 MessageBox.Show("Unable to save the proxy settings.", "Proxy", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            // The proxy is fixed when the browser environment is built, so force a rebuild.
-            AccountBrowserManager.Invalidate(this.steamId);
+            ApplyToLiveAccount(settings);
 
+            this.Result = settings;
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
+            if (!this.persist)
+            {
+                this.Result = null;
+                this.DialogResult = DialogResult.OK;
+                this.Close();
+                return;
+            }
+
             DialogResult confirm = MessageBox.Show("Remove the proxy for this account?", "Proxy",
                 MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
             if (confirm != DialogResult.OK) return;
@@ -220,10 +274,23 @@ namespace Steam_Desktop_Authenticator
                 return;
             }
 
-            AccountBrowserManager.Invalidate(this.steamId);
+            ApplyToLiveAccount(null);
 
+            this.Result = null;
             this.DialogResult = DialogResult.OK;
             this.Close();
+        }
+
+        /// <summary>
+        /// Pushes the change onto the in-memory account and drops the cached browser
+        /// environment, so neither keeps using the previous proxy until a restart.
+        /// </summary>
+        private void ApplyToLiveAccount(ProxySettings settings)
+        {
+            if (this.account != null)
+                this.account.SetWebProxy(settings == null ? null : settings.ToWebProxy());
+
+            AccountBrowserManager.Invalidate(this.steamId);
         }
 
         private static string NullIfEmpty(string value)

@@ -18,6 +18,12 @@ namespace Steam_Desktop_Authenticator
     {
         private Manifest mManifest;
 
+        /// <summary>
+        /// Passkey of the local manifest. Lets the login form list the proxies of existing
+        /// accounts, and lets an imported account's proxy be encrypted like its maFile.
+        /// </summary>
+        public string PassKey { get; set; }
+
         public ImportAccountForm()
         {
             InitializeComponent();
@@ -104,10 +110,13 @@ namespace Steam_Desktop_Authenticator
                             #region Import maFile
                             SteamGuardAccount maFile = JsonConvert.DeserializeObject<SteamGuardAccount>(fileContents);
 
+                            ProxySettings importedProxy = null;
+
                             if (maFile.Session == null || maFile.Session.SteamID == 0 || maFile.Session.IsAccessTokenExpired())
                             {
                                 // Have the user to relogin to steam to get a new session
                                 LoginForm loginForm = new LoginForm(LoginForm.LoginType.Import, maFile);
+                                loginForm.PassKey = this.PassKey;
                                 loginForm.ShowDialog();
 
                                 if (loginForm.Session == null || loginForm.Session.SteamID == 0)
@@ -118,10 +127,12 @@ namespace Steam_Desktop_Authenticator
 
                                 // Save new session to the maFile
                                 maFile.Session = loginForm.Session;
+                                importedProxy = loginForm.SelectedProxy;
                             }
 
                             // Save account
                             mManifest.SaveAccount(maFile, false);
+                            ApplyImportedProxy(maFile, importedProxy);
                             MessageBox.Show("Account Imported!", "Account Import", MessageBoxButtons.OK);
                             #endregion
                         }
@@ -203,10 +214,13 @@ namespace Steam_Desktop_Authenticator
                                             string fileText = decryptedText;
 
                                             SteamGuardAccount maFile = JsonConvert.DeserializeObject<SteamGuardAccount>(fileText);
+                                            ProxySettings importedProxy = null;
+
                                             if (maFile.Session == null || maFile.Session.SteamID == 0 || maFile.Session.IsAccessTokenExpired())
                                             {
                                                 // Have the user to relogin to steam to get a new session
                                                 LoginForm loginForm = new LoginForm(LoginForm.LoginType.Import, maFile);
+                                                loginForm.PassKey = this.PassKey;
                                                 loginForm.ShowDialog();
 
                                                 if (loginForm.Session == null || loginForm.Session.SteamID == 0)
@@ -217,10 +231,12 @@ namespace Steam_Desktop_Authenticator
 
                                                 // Save new session to the maFile
                                                 maFile.Session = loginForm.Session;
+                                                importedProxy = loginForm.SelectedProxy;
                                             }
 
                                             // Save account
                                             mManifest.SaveAccount(maFile, false);
+                                            ApplyImportedProxy(maFile, importedProxy);
                                             MessageBox.Show("Account Imported!\nYour Account in now Decrypted!", "Account Import", MessageBoxButtons.OK);
                                         }
                                     }
@@ -266,6 +282,31 @@ namespace Steam_Desktop_Authenticator
                 }
             }
             #endregion // Continue End
+        }
+
+        /// <summary>
+        /// Stores the proxy chosen during an import login and puts it on the account right
+        /// away, so the very next request it makes already goes out through that proxy
+        /// instead of waiting for the account list to be reloaded.
+        /// </summary>
+        private void ApplyImportedProxy(SteamGuardAccount maFile, ProxySettings chosen)
+        {
+            if (maFile == null || maFile.Session == null) return;
+
+            ulong steamId = maFile.Session.SteamID;
+
+            if (chosen != null)
+            {
+                ProxyStore.Save(steamId, chosen, mManifest.Encrypted, this.PassKey);
+            }
+            else
+            {
+                // No login happened, so nothing was picked: keep whatever this account
+                // already had, in case it is being re-imported over an existing sidecar.
+                chosen = ProxyStore.Load(steamId, this.PassKey);
+            }
+
+            maFile.SetWebProxy(chosen == null ? null : chosen.ToWebProxy());
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
