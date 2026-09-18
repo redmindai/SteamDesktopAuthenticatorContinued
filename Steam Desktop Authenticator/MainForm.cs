@@ -433,9 +433,9 @@ namespace Steam_Desktop_Authenticator
 
         private void menuAccountContext_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            // Nothing sensible to act on until an account is selected.
-            if (currentAccount == null)
-                e.Cancel = true;
+            // Show the menu even with nothing selected: cancelling it outright is
+            // indistinguishable from the feature not existing.
+            menuOpenInBrowser.Enabled = menuProxySettings.Enabled = currentAccount != null;
         }
 
         private async void menuOpenInBrowser_Click(object sender, EventArgs e)
@@ -661,6 +661,7 @@ namespace Steam_Desktop_Authenticator
                 trayAccountList.Sorted = true;
             }
             menuDeactivateAuthenticator.Enabled = btnTradeConfirmations.Enabled = allAccounts.Length > 0;
+            menuAccountOpenInBrowser.Enabled = menuAccountProxySettings.Enabled = allAccounts.Length > 0;
         }
 
         private void listAccounts_KeyDown(object sender, KeyEventArgs e)

@@ -58,6 +58,9 @@ namespace Steam_Desktop_Authenticator
             this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
             this.menuRemoveAccountFromManifest = new System.Windows.Forms.ToolStripMenuItem();
             this.menuDeactivateAuthenticator = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuAccountOpenInBrowser = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuAccountProxySettings = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator5 = new System.Windows.Forms.ToolStripSeparator();
             this.trayIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.menuStripTray = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.trayRestore = new System.Windows.Forms.ToolStripMenuItem();
@@ -310,7 +313,9 @@ namespace Steam_Desktop_Authenticator
             // 
             this.accountToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.menuLoginAgain,
-            this.toolStripSeparator4,
+            this.menuAccountOpenInBrowser,
+            this.menuAccountProxySettings,
+            this.toolStripSeparator5,
             this.menuRemoveAccountFromManifest,
             this.menuDeactivateAuthenticator});
             this.accountToolStripMenuItem.Name = "accountToolStripMenuItem";
@@ -343,6 +348,25 @@ namespace Steam_Desktop_Authenticator
             this.menuDeactivateAuthenticator.Text = "Deactivate Authenticator";
             this.menuDeactivateAuthenticator.Click += new System.EventHandler(this.menuDeactivateAuthenticator_Click);
             // 
+            // menuAccountOpenInBrowser
+            //
+            this.menuAccountOpenInBrowser.Name = "menuAccountOpenInBrowser";
+            this.menuAccountOpenInBrowser.Size = new System.Drawing.Size(215, 22);
+            this.menuAccountOpenInBrowser.Text = "Open in Browser";
+            this.menuAccountOpenInBrowser.Click += new System.EventHandler(this.menuOpenInBrowser_Click);
+            //
+            // menuAccountProxySettings
+            //
+            this.menuAccountProxySettings.Name = "menuAccountProxySettings";
+            this.menuAccountProxySettings.Size = new System.Drawing.Size(215, 22);
+            this.menuAccountProxySettings.Text = "Proxy...";
+            this.menuAccountProxySettings.Click += new System.EventHandler(this.menuProxySettings_Click);
+            //
+            // toolStripSeparator5
+            //
+            this.toolStripSeparator5.Name = "toolStripSeparator5";
+            this.toolStripSeparator5.Size = new System.Drawing.Size(212, 6);
+            //
             // trayIcon
             // 
             this.trayIcon.ContextMenuStrip = this.menuStripTray;
@@ -545,6 +569,9 @@ namespace Steam_Desktop_Authenticator
         private System.Windows.Forms.ContextMenuStrip menuAccountContext;
         private System.Windows.Forms.ToolStripMenuItem menuOpenInBrowser;
         private System.Windows.Forms.ToolStripMenuItem menuProxySettings;
+        private System.Windows.Forms.ToolStripMenuItem menuAccountOpenInBrowser;
+        private System.Windows.Forms.ToolStripMenuItem menuAccountProxySettings;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator5;
         private System.Windows.Forms.Panel panelButtons;
     }
 }
