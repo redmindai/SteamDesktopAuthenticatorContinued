@@ -134,6 +134,9 @@ namespace Steam_Desktop_Authenticator
         /// </summary>
         private async Task StartPageLoggingAsync(CoreWebView2 core)
         {
+            if (!BrowserConsoleLog.Enabled)
+                return;
+
             try
             {
                 CoreWebView2DevToolsProtocolEventReceiver console = core.GetDevToolsProtocolEventReceiver("Runtime.consoleAPICalled");

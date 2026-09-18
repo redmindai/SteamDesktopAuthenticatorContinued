@@ -43,6 +43,14 @@ namespace Steam_Desktop_Authenticator
         [JsonProperty("language")]
         public string Language { get; set; } = LocalizationManager.DefaultLanguage;
 
+        /// <summary>
+        /// Whether the embedded browser writes page diagnostics to disk. Off by default:
+        /// the log is useful for chasing a silent failure but is one more file on disk
+        /// that has seen the session.
+        /// </summary>
+        [JsonProperty("browser_logging")]
+        public bool BrowserLogging { get; set; } = false;
+
         private static Manifest _manifest { get; set; }
 
         public static string GetExecutableDir()
@@ -107,6 +115,7 @@ namespace Steam_Desktop_Authenticator
             newManifest.AutoConfirmTrades = false;
             newManifest.UseDarkTheme = true;
             newManifest.Language = LocalizationManager.DefaultLanguage;
+            newManifest.BrowserLogging = false;
             newManifest.Entries = new List<ManifestEntry>();
             newManifest.FirstRun = true;
 
@@ -335,9 +344,10 @@ namespace Steam_Desktop_Authenticator
 
             if (saved)
             {
-                // The proxy sidecar can hold credentials, so it must never outlive its
-                // account in the manifest.
+                // The proxy sidecar can hold credentials, and the browser log has seen
+                // this account's pages; neither may outlive the account.
                 ProxyStore.Delete(account.Session.SteamID);
+                BrowserConsoleLog.Delete(account.Session.SteamID);
             }
 
             if (saved && deleteMaFile)

@@ -189,5 +189,6 @@
   "Manifest.prompt.SetupPasskeyDefault": "Enter passkey, or hit cancel to remain unencrypted.",
   "Manifest.prompt.ConfirmNewPasskey": "Confirm new passkey.",
   "UserFormAuthenticator.prompt.EmailCodeRetry": "The code you provided was invalid. Enter the code sent to your email:",
-  "UserFormAuthenticator.prompt.EmailCode": "Enter the code sent to your email:"
+  "UserFormAuthenticator.prompt.EmailCode": "Enter the code sent to your email:",
+  "SettingsForm.chkBrowserLogging": "Log browser page errors\n(may contain session tokens)"
 }

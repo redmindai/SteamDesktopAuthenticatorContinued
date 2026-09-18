@@ -189,5 +189,6 @@
   "Manifest.prompt.SetupPasskeyDefault": "Введіть ключ шифрування або натисніть «Скасувати», щоб лишити без шифрування.",
   "Manifest.prompt.ConfirmNewPasskey": "Підтвердіть новий ключ шифрування.",
   "UserFormAuthenticator.prompt.EmailCodeRetry": "Наданий код виявився недійсним. Введіть код, надісланий на вашу пошту:",
-  "UserFormAuthenticator.prompt.EmailCode": "Введіть код, надісланий на вашу пошту:"
+  "UserFormAuthenticator.prompt.EmailCode": "Введіть код, надісланий на вашу пошту:",
+  "SettingsForm.chkBrowserLogging": "Записувати помилки сторінок браузера\n(може містити токени сесії)"
 }

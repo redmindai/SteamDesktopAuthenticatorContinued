@@ -21,6 +21,8 @@ namespace Steam_Desktop_Authenticator
             chkConfirmMarket.Checked = manifest.AutoConfirmMarketTransactions;
             chkConfirmTrades.Checked = manifest.AutoConfirmTrades;
 
+            chkBrowserLogging.Checked = manifest.BrowserLogging;
+
             PopulateLanguages();
 
             SetControlsEnabledState(chkPeriodicChecking.Checked);
@@ -79,6 +81,9 @@ namespace Steam_Desktop_Authenticator
             manifest.CheckAllAccounts = chkCheckAll.Checked;
             manifest.AutoConfirmMarketTransactions = chkConfirmMarket.Checked;
             manifest.AutoConfirmTrades = chkConfirmTrades.Checked;
+
+            manifest.BrowserLogging = chkBrowserLogging.Checked;
+            BrowserConsoleLog.Enabled = manifest.BrowserLogging;
 
             var language = cmbLanguage.SelectedItem as LocalizationManager.LanguageOption;
             bool languageChanged = language != null && language.Code != manifest.Language;

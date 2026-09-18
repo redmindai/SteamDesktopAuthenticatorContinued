@@ -38,6 +38,7 @@ namespace Steam_Desktop_Authenticator
             this.chkConfirmTrades = new System.Windows.Forms.CheckBox();
             this.lblLanguage = new System.Windows.Forms.Label();
             this.cmbLanguage = new System.Windows.Forms.ComboBox();
+            this.chkBrowserLogging = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.numPeriodicInterval)).BeginInit();
             this.SuspendLayout();
             // 
@@ -57,7 +58,7 @@ namespace Steam_Desktop_Authenticator
             this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.btnSave.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSave.Location = new System.Drawing.Point(12, 190);
+            this.btnSave.Location = new System.Drawing.Point(12, 226);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(224, 38);
             this.btnSave.TabIndex = 1;
@@ -141,9 +142,19 @@ namespace Steam_Desktop_Authenticator
             this.cmbLanguage.Name = "cmbLanguage";
             this.cmbLanguage.Size = new System.Drawing.Size(146, 21);
             this.cmbLanguage.TabIndex = 6;
+            // 
+            // chkBrowserLogging
+            // 
+            this.chkBrowserLogging.Location = new System.Drawing.Point(12, 182);
+            this.chkBrowserLogging.Name = "chkBrowserLogging";
+            this.chkBrowserLogging.Size = new System.Drawing.Size(224, 36);
+            this.chkBrowserLogging.TabIndex = 7;
+            this.chkBrowserLogging.Text = "Log browser page errors\r\n(may contain session tokens)";
+            this.chkBrowserLogging.UseVisualStyleBackColor = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(244, 240);
+            this.ClientSize = new System.Drawing.Size(244, 276);
+            this.Controls.Add(this.chkBrowserLogging);
             this.Controls.Add(this.cmbLanguage);
             this.Controls.Add(this.lblLanguage);
             this.Controls.Add(this.chkConfirmTrades);
@@ -178,5 +189,6 @@ namespace Steam_Desktop_Authenticator
         private System.Windows.Forms.CheckBox chkConfirmTrades;
         private System.Windows.Forms.Label lblLanguage;
         private System.Windows.Forms.ComboBox cmbLanguage;
+        private System.Windows.Forms.CheckBox chkBrowserLogging;
     }
 }

@@ -76,6 +76,7 @@ namespace Steam_Desktop_Authenticator
             }
 
             LocalizationManager.Load(man.Language);
+            BrowserConsoleLog.Enabled = man.BrowserLogging;
 
             if (man.FirstRun)
             {
