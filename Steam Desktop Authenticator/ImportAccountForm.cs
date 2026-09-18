@@ -131,7 +131,8 @@ namespace Steam_Desktop_Authenticator
                             }
 
                             // Save account
-                            mManifest.SaveAccount(maFile, false);
+                            if (!SaveImportedAccount(maFile)) return;
+
                             ApplyImportedProxy(maFile, importedProxy);
                             MessageBox.Show("Account Imported!", "Account Import", MessageBoxButtons.OK);
                             #endregion
@@ -235,9 +236,13 @@ namespace Steam_Desktop_Authenticator
                                             }
 
                                             // Save account
-                                            mManifest.SaveAccount(maFile, false);
+                                            if (!SaveImportedAccount(maFile)) return;
+
                                             ApplyImportedProxy(maFile, importedProxy);
-                                            MessageBox.Show("Account Imported!\nYour Account in now Decrypted!", "Account Import", MessageBoxButtons.OK);
+                                            MessageBox.Show(mManifest.Encrypted
+                                                ? "Account Imported!\nIt has been re-encrypted with your passkey."
+                                                : "Account Imported!\nYour Account in now Decrypted!",
+                                                "Account Import", MessageBoxButtons.OK);
                                         }
                                     }
                                     else
@@ -282,6 +287,39 @@ namespace Steam_Desktop_Authenticator
                 }
             }
             #endregion // Continue End
+        }
+
+        /// <summary>
+        /// Saves an imported account using the manifest's own encryption state.
+        ///
+        /// This used to pass encrypt=false unconditionally, which Manifest.SaveAccount
+        /// rejects outright when the manifest is encrypted. The result was returned and
+        /// ignored, so importing into an encrypted manifest reported success and wrote
+        /// nothing. Mirrors what LoginForm.HandleManifest does: obtain a passkey when one
+        /// is needed, then save with it.
+        /// </summary>
+        /// <returns>False when nothing was written; the caller must not report success.</returns>
+        private bool SaveImportedAccount(SteamGuardAccount maFile)
+        {
+            if (mManifest.Encrypted && string.IsNullOrEmpty(this.PassKey))
+            {
+                this.PassKey = mManifest.PromptForPassKey();
+                if (string.IsNullOrEmpty(this.PassKey))
+                {
+                    MessageBox.Show("Your manifest is encrypted, so its passkey is required to import an account.\nImport Failed.",
+                        "Account Import", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return false;
+                }
+            }
+
+            if (!mManifest.SaveAccount(maFile, mManifest.Encrypted, this.PassKey))
+            {
+                MessageBox.Show("Unable to save the imported account.\nImport Failed.",
+                    "Account Import", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return false;
+            }
+
+            return true;
         }
 
         /// <summary>
