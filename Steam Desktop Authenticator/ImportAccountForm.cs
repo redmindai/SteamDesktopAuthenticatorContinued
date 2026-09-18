@@ -50,7 +50,7 @@ namespace Steam_Desktop_Authenticator
                 bool AppManifestData_encrypted = AppManifestData.Encrypted;
                 if (AppManifestData_encrypted == true)
                 {
-                    MessageBox.Show("You can't import an .maFile because the existing account in the app is encrypted.\nDecrypt it and try again.");
+                    MessageBox.Show(LocalizationManager.T("ImportAccountForm.msg.ExistingEncrypted", "You can't import an .maFile because the existing account in the app is encrypted.\nDecrypt it and try again."));
                     this.Close();
                 }
                 else if (AppManifestData_encrypted == false)
@@ -59,13 +59,13 @@ namespace Steam_Desktop_Authenticator
                 }
                 else
                 {
-                    MessageBox.Show("invalid value for variable 'encrypted' inside manifest.json");
+                    MessageBox.Show(LocalizationManager.T("ImportAccountForm.msg.InvalidEncryptedFlag", "invalid value for variable 'encrypted' inside manifest.json"));
                     this.Close();
                 }
             }
             else
             {
-                MessageBox.Show("An Error occurred, Restart the program!");
+                MessageBox.Show(LocalizationManager.T("ImportAccountForm.msg.GenericError", "An Error occurred, Restart the program!"));
             }
             #endregion
 
@@ -122,7 +122,7 @@ namespace Steam_Desktop_Authenticator
 
                                 if (loginForm.Session == null || loginForm.Session.SteamID == 0)
                                 {
-                                    MessageBox.Show("Login failed. Try to import this account again.", "Account Import", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    MessageBox.Show(LocalizationManager.T("ImportAccountForm.msg.LoginFailed", "Login failed. Try to import this account again."), LocalizationManager.T("ImportAccountForm.title.AccountImport", "Account Import"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                                     return;
                                 }
 
@@ -135,7 +135,7 @@ namespace Steam_Desktop_Authenticator
                             if (!SaveImportedAccount(maFile)) return;
 
                             ApplyImportedProxy(maFile, importedProxy);
-                            MessageBox.Show("Account Imported!", "Account Import", MessageBoxButtons.OK);
+                            MessageBox.Show(LocalizationManager.T("ImportAccountForm.msg.Imported", "Account Imported!"), LocalizationManager.T("ImportAccountForm.title.AccountImport", "Account Import"), MessageBoxButtons.OK);
                             #endregion
                         }
                         else
@@ -194,7 +194,7 @@ namespace Steam_Desktop_Authenticator
                                 catch (Exception)
                                 {
                                     ReadManifestEx = "1";
-                                    MessageBox.Show("Invalid content inside manifest.json!\nImport Failed.");
+                                    MessageBox.Show(LocalizationManager.T("ImportAccountForm.msg.InvalidManifestContent", "Invalid content inside manifest.json!\nImport Failed."));
                                 }
 
 
@@ -209,7 +209,7 @@ namespace Steam_Desktop_Authenticator
 
                                         if (decryptedText == null)
                                         {
-                                            MessageBox.Show("Decryption Failed.\nImport Failed.");
+                                            MessageBox.Show(LocalizationManager.T("ImportAccountForm.msg.DecryptionFailed", "Decryption Failed.\nImport Failed."));
                                         }
                                         else
                                         {
@@ -227,7 +227,7 @@ namespace Steam_Desktop_Authenticator
 
                                                 if (loginForm.Session == null || loginForm.Session.SteamID == 0)
                                                 {
-                                                    MessageBox.Show("Login failed. Try to import this account again.", "Account Import", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                                    MessageBox.Show(LocalizationManager.T("ImportAccountForm.msg.LoginFailed", "Login failed. Try to import this account again."), LocalizationManager.T("ImportAccountForm.title.AccountImport", "Account Import"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                                                     return;
                                                 }
 
@@ -241,30 +241,30 @@ namespace Steam_Desktop_Authenticator
 
                                             ApplyImportedProxy(maFile, importedProxy);
                                             MessageBox.Show(mManifest.Encrypted
-                                                ? "Account Imported!\nIt has been re-encrypted with your passkey."
-                                                : "Account Imported!\nYour Account in now Decrypted!",
-                                                "Account Import", MessageBoxButtons.OK);
+                                                ? LocalizationManager.T("ImportAccountForm.msg.ImportedReencrypted", "Account Imported!\nIt has been re-encrypted with your passkey.")
+                                                : LocalizationManager.T("ImportAccountForm.msg.ImportedDecrypted", "Account Imported!\nYour Account in now Decrypted!"),
+                                                LocalizationManager.T("ImportAccountForm.title.AccountImport", "Account Import"), MessageBoxButtons.OK);
                                         }
                                     }
                                     else
                                     {
                                         if (ImportFileName_Found == "0")
                                         {
-                                            MessageBox.Show("Account not found inside manifest.json.\nImport Failed.");
+                                            MessageBox.Show(LocalizationManager.T("ImportAccountForm.msg.AccountNotInManifest", "Account not found inside manifest.json.\nImport Failed."));
                                         }
                                         else if (Salt_Found == null && IV_Found == null)
                                         {
-                                            MessageBox.Show("manifest.json does not contain encrypted data.\nYour account may be unencrypted!\nImport Failed.");
+                                            MessageBox.Show(LocalizationManager.T("ImportAccountForm.msg.NoEncryptedData", "manifest.json does not contain encrypted data.\nYour account may be unencrypted!\nImport Failed."));
                                         }
                                         else
                                         {
                                             if (IV_Found == null)
                                             {
-                                                MessageBox.Show("manifest.json does not contain: encryption_iv\nImport Failed.");
+                                                MessageBox.Show(LocalizationManager.T("ImportAccountForm.msg.MissingIV", "manifest.json does not contain: encryption_iv\nImport Failed."));
                                             }
                                             else if (IV_Found == null)
                                             {
-                                                MessageBox.Show("manifest.json does not contain: encryption_salt\nImport Failed.");
+                                                MessageBox.Show(LocalizationManager.T("ImportAccountForm.msg.MissingSalt", "manifest.json does not contain: encryption_salt\nImport Failed."));
                                             }
                                         }
                                     }
@@ -275,7 +275,7 @@ namespace Steam_Desktop_Authenticator
                             }
                             else
                             {
-                                MessageBox.Show("manifest.json is missing!\nImport Failed.");
+                                MessageBox.Show(LocalizationManager.T("ImportAccountForm.msg.ManifestMissing", "manifest.json is missing!\nImport Failed."));
                             }
                             #endregion //Import Encripted maFile END
                         }
@@ -283,7 +283,7 @@ namespace Steam_Desktop_Authenticator
                     }
                     catch (Exception)
                     {
-                        MessageBox.Show("This file is not a valid SteamAuth maFile.\nImport Failed.");
+                        MessageBox.Show(LocalizationManager.T("ImportAccountForm.msg.NotAMaFile", "This file is not a valid SteamAuth maFile.\nImport Failed."));
                     }
                 }
             }
@@ -307,16 +307,16 @@ namespace Steam_Desktop_Authenticator
                 this.PassKey = mManifest.PromptForPassKey();
                 if (string.IsNullOrEmpty(this.PassKey))
                 {
-                    MessageBox.Show("Your manifest is encrypted, so its passkey is required to import an account.\nImport Failed.",
-                        "Account Import", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(LocalizationManager.T("ImportAccountForm.msg.PasskeyRequired", "Your manifest is encrypted, so its passkey is required to import an account.\nImport Failed."),
+                        LocalizationManager.T("ImportAccountForm.title.AccountImport", "Account Import"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return false;
                 }
             }
 
             if (!mManifest.SaveAccount(maFile, mManifest.Encrypted, this.PassKey))
             {
-                MessageBox.Show("Unable to save the imported account.\nImport Failed.",
-                    "Account Import", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(LocalizationManager.T("ImportAccountForm.msg.SaveFailed", "Unable to save the imported account.\nImport Failed."),
+                    LocalizationManager.T("ImportAccountForm.title.AccountImport", "Account Import"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
 

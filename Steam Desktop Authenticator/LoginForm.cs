@@ -61,7 +61,7 @@ namespace Steam_Desktop_Authenticator
             }
             catch (Exception)
             {
-                MessageBox.Show("Failed to find your account. Try closing and re-opening SDA.", "Login Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(LocalizationManager.T("LoginForm.msg.AccountNotFound", "Failed to find your account. Try closing and re-opening SDA."), LocalizationManager.T("LoginForm.title.LoginFailed", "Login Failed"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Close();
             }
         }
@@ -124,7 +124,7 @@ namespace Steam_Desktop_Authenticator
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Steam Login Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, LocalizationManager.T("LoginForm.title.SteamLoginError", "Steam Login Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Close();
                 return;
             }
@@ -137,7 +137,7 @@ namespace Steam_Desktop_Authenticator
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Steam Login Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, LocalizationManager.T("LoginForm.title.SteamLoginError", "Steam Login Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Close();
                 return;
             }
@@ -173,10 +173,10 @@ namespace Steam_Desktop_Authenticator
             }
 
             // Show a dialog to make sure they really want to add their authenticator
-            var result = MessageBox.Show("Steam account login succeeded. Press OK to continue adding SDA as your authenticator.", "Steam Login", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+            var result = MessageBox.Show(LocalizationManager.T("LoginForm.msg.LoginSucceeded", "Steam account login succeeded. Press OK to continue adding SDA as your authenticator."), LocalizationManager.T("LoginForm.title.SteamLogin", "Steam Login"), MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
             if (result == DialogResult.Cancel)
             {
-                MessageBox.Show("Adding authenticator aborted.", "Steam Login", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(LocalizationManager.T("LoginForm.msg.AddAborted", "Adding authenticator aborted."), LocalizationManager.T("LoginForm.title.SteamLogin", "Steam Login"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 ResetLoginButton();
                 return;
             }
@@ -194,7 +194,7 @@ namespace Steam_Desktop_Authenticator
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Error adding your authenticator: " + ex.Message, "Steam Login", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(string.Format(LocalizationManager.T("LoginForm.msg.AddAuthenticatorError", "Error adding your authenticator: {0}"), ex.Message), LocalizationManager.T("LoginForm.title.SteamLogin", "Steam Login"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                     ResetLoginButton();
                     return;
                 }
@@ -217,12 +217,12 @@ namespace Steam_Desktop_Authenticator
                         break;
 
                     case AuthenticatorLinker.LinkResult.AuthenticatorPresent:
-                        MessageBox.Show("This account already has an authenticator linked. You must remove that authenticator to add SDA as your authenticator.", "Steam Login", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(LocalizationManager.T("LoginForm.msg.AuthenticatorPresent", "This account already has an authenticator linked. You must remove that authenticator to add SDA as your authenticator."), LocalizationManager.T("LoginForm.title.SteamLogin", "Steam Login"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                         this.Close();
                         return;
 
                     case AuthenticatorLinker.LinkResult.FailureAddingPhone:
-                        MessageBox.Show("Failed to add your phone number. Please try again or use a different phone number.", "Steam Login", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(LocalizationManager.T("LoginForm.msg.PhoneAddFailed", "Failed to add your phone number. Please try again or use a different phone number."), LocalizationManager.T("LoginForm.title.SteamLogin", "Steam Login"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                         linker.PhoneNumber = null;
                         break;
 
@@ -231,11 +231,11 @@ namespace Steam_Desktop_Authenticator
                         break;
 
                     case AuthenticatorLinker.LinkResult.MustConfirmEmail:
-                        MessageBox.Show("Please check your email, and click the link Steam sent you before continuing.", "Steam Login", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        MessageBox.Show(LocalizationManager.T("LoginForm.msg.ConfirmEmail", "Please check your email, and click the link Steam sent you before continuing."), LocalizationManager.T("LoginForm.title.SteamLogin", "Steam Login"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                         break;
 
                     case AuthenticatorLinker.LinkResult.GeneralFailure:
-                        MessageBox.Show("Error adding your authenticator.", "Steam Login Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(LocalizationManager.T("LoginForm.msg.AddAuthenticatorFailed", "Error adding your authenticator."), LocalizationManager.T("LoginForm.title.SteamLoginError", "Steam Login Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                         this.Close();
                         return;
                 }
@@ -260,7 +260,7 @@ namespace Steam_Desktop_Authenticator
                         passKeyValid = manifest.VerifyPasskey(passKey);
                         if (!passKeyValid)
                         {
-                            MessageBox.Show("That passkey is invalid. Please enter the same passkey you used for your other accounts.");
+                            MessageBox.Show(LocalizationManager.T("LoginForm.msg.InvalidPasskey", "That passkey is invalid. Please enter the same passkey you used for your other accounts."));
                         }
                     }
                     else
@@ -275,7 +275,7 @@ namespace Steam_Desktop_Authenticator
             if (!manifest.SaveAccount(linker.LinkedAccount, passKey != null, passKey))
             {
                 manifest.RemoveAccount(linker.LinkedAccount);
-                MessageBox.Show("Unable to save mobile authenticator file. The mobile authenticator has not been linked.");
+                MessageBox.Show(LocalizationManager.T("LoginForm.msg.SaveMaFileFailed", "Unable to save mobile authenticator file. The mobile authenticator has not been linked."));
                 this.Close();
                 return;
             }
@@ -284,7 +284,7 @@ namespace Steam_Desktop_Authenticator
             // rather than at the end so an aborted link removes it along with the account.
             SaveLoginProxy(linker.LinkedAccount.Session.SteamID, passKey != null, passKey);
 
-            MessageBox.Show("The Mobile Authenticator has not yet been linked. Before finalizing the authenticator, please write down your revocation code: " + linker.LinkedAccount.RevocationCode);
+            MessageBox.Show(string.Format(LocalizationManager.T("LoginForm.msg.WriteDownRevocationCode", "The Mobile Authenticator has not yet been linked. Before finalizing the authenticator, please write down your revocation code: {0}"), linker.LinkedAccount.RevocationCode));
 
             AuthenticatorLinker.FinalizeResult finalizeResponse = AuthenticatorLinker.FinalizeResult.GeneralFailure;
             while (finalizeResponse != AuthenticatorLinker.FinalizeResult.Success)
@@ -302,7 +302,7 @@ namespace Steam_Desktop_Authenticator
                 confirmRevocationCode.ShowDialog();
                 if (confirmRevocationCode.txtBox.Text.ToUpper() != linker.LinkedAccount.RevocationCode)
                 {
-                    MessageBox.Show("Revocation code incorrect; the authenticator has not been linked.");
+                    MessageBox.Show(LocalizationManager.T("LoginForm.msg.RevocationCodeIncorrect", "Revocation code incorrect; the authenticator has not been linked."));
                     manifest.RemoveAccount(linker.LinkedAccount);
                     this.Close();
                     return;
@@ -317,13 +317,13 @@ namespace Steam_Desktop_Authenticator
                         continue;
 
                     case AuthenticatorLinker.FinalizeResult.UnableToGenerateCorrectCodes:
-                        MessageBox.Show("Unable to generate the proper codes to finalize this authenticator. The authenticator should not have been linked. In the off-chance it was, please write down your revocation code, as this is the last chance to see it: " + linker.LinkedAccount.RevocationCode);
+                        MessageBox.Show(string.Format(LocalizationManager.T("LoginForm.msg.CannotGenerateCodes", "Unable to generate the proper codes to finalize this authenticator. The authenticator should not have been linked. In the off-chance it was, please write down your revocation code, as this is the last chance to see it: {0}"), linker.LinkedAccount.RevocationCode));
                         manifest.RemoveAccount(linker.LinkedAccount);
                         this.Close();
                         return;
 
                     case AuthenticatorLinker.FinalizeResult.GeneralFailure:
-                        MessageBox.Show("Unable to finalize this authenticator. The authenticator should not have been linked. In the off-chance it was, please write down your revocation code, as this is the last chance to see it: " + linker.LinkedAccount.RevocationCode);
+                        MessageBox.Show(string.Format(LocalizationManager.T("LoginForm.msg.CannotFinalize", "Unable to finalize this authenticator. The authenticator should not have been linked. In the off-chance it was, please write down your revocation code, as this is the last chance to see it: {0}"), linker.LinkedAccount.RevocationCode));
                         manifest.RemoveAccount(linker.LinkedAccount);
                         this.Close();
                         return;
@@ -332,7 +332,7 @@ namespace Steam_Desktop_Authenticator
 
             //Linked, finally. Re-save with FullyEnrolled property.
             manifest.SaveAccount(linker.LinkedAccount, passKey != null, passKey);
-            MessageBox.Show("Mobile authenticator successfully linked. Please write down your revocation code: " + linker.LinkedAccount.RevocationCode);
+            MessageBox.Show(string.Format(LocalizationManager.T("LoginForm.msg.LinkedSuccessfully", "Mobile authenticator successfully linked. Please write down your revocation code: {0}"), linker.LinkedAccount.RevocationCode));
             this.Close();
         }
 
@@ -356,7 +356,7 @@ namespace Steam_Desktop_Authenticator
                         passKeyValid = man.VerifyPasskey(passKey);
                         if (!passKeyValid)
                         {
-                            MessageBox.Show("That passkey is invalid. Please enter the same passkey you used for your other accounts.", "Steam Login", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            MessageBox.Show(LocalizationManager.T("LoginForm.msg.InvalidPasskey", "That passkey is invalid. Please enter the same passkey you used for your other accounts."), LocalizationManager.T("LoginForm.title.SteamLogin", "Steam Login"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                         }
                     }
                     else
@@ -375,11 +375,11 @@ namespace Steam_Desktop_Authenticator
             }
             if (IsRefreshing)
             {
-                MessageBox.Show("Your session was refreshed.", "Steam Login", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(LocalizationManager.T("LoginForm.msg.SessionRefreshed", "Your session was refreshed."), LocalizationManager.T("LoginForm.title.SteamLogin", "Steam Login"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
-                MessageBox.Show("Mobile authenticator successfully linked. Please write down your revocation code: " + account.RevocationCode, "Steam Login", MessageBoxButtons.OK);
+                MessageBox.Show(string.Format(LocalizationManager.T("LoginForm.msg.LinkedSuccessfully", "Mobile authenticator successfully linked. Please write down your revocation code: {0}"), account.RevocationCode), LocalizationManager.T("LoginForm.title.SteamLogin", "Steam Login"), MessageBoxButtons.OK);
             }
             this.Close();
         }

@@ -27,7 +27,7 @@ namespace Steam_Desktop_Authenticator
             {
                 // After 2 tries tell the user that there seems to be an issue
                 if (deviceCodesGenerated > 2)
-                    MessageBox.Show("There seems to be an issue logging into your account with these two factor codes. Are you sure SDA is still your authenticator?");
+                    MessageBox.Show(LocalizationManager.T("UserFormAuthenticator.msg.TwoFactorIssue", "There seems to be an issue logging into your account with these two factor codes. Are you sure SDA is still your authenticator?"));
 
                 await Task.Delay(30000);
             }
@@ -36,7 +36,7 @@ namespace Steam_Desktop_Authenticator
 
             if (account == null)
             {
-                MessageBox.Show("This account already has an authenticator linked. You must remove that authenticator to add SDA as your authenticator.", "Steam Login", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(LocalizationManager.T("UserFormAuthenticator.msg.AuthenticatorPresent", "This account already has an authenticator linked. You must remove that authenticator to add SDA as your authenticator."), LocalizationManager.T("UserFormAuthenticator.title.SteamLogin", "Steam Login"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return null;
             }
             else

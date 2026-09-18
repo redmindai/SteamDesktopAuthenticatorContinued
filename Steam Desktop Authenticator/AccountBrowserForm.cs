@@ -53,7 +53,7 @@ namespace Steam_Desktop_Authenticator
             {
                 // Most often: the WebView2 runtime is missing, or the profile folder is already
                 // locked by another window that was opened with different proxy arguments.
-                MessageBox.Show("Unable to start the browser: " + ex.Message, "Steam Browser", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(string.Format(LocalizationManager.T("AccountBrowserForm.msg.StartFailed", "Unable to start the browser: {0}"), ex.Message), LocalizationManager.T("AccountBrowserForm.title.Browser", "Steam Browser"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Close();
             }
         }
@@ -63,7 +63,7 @@ namespace Steam_Desktop_Authenticator
             if (!e.IsSuccess)
             {
                 string message = e.InitializationException == null ? "Unknown error." : e.InitializationException.Message;
-                MessageBox.Show("Unable to start the browser: " + message, "Steam Browser", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(string.Format(LocalizationManager.T("AccountBrowserForm.msg.StartFailed", "Unable to start the browser: {0}"), message), LocalizationManager.T("AccountBrowserForm.title.Browser", "Steam Browser"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Close();
                 return;
             }
@@ -78,7 +78,7 @@ namespace Steam_Desktop_Authenticator
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Steam Browser", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, LocalizationManager.T("AccountBrowserForm.title.Browser", "Steam Browser"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Close();
                 return;
             }

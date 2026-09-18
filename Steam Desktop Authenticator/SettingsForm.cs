@@ -65,7 +65,7 @@ namespace Steam_Desktop_Authenticator
         {
             if (!fullyLoaded) return;
 
-            var result = MessageBox.Show("Warning: enabling this will severely reduce the security of your items! Use of this option is at your own risk. Would you like to continue?", "Warning!", MessageBoxButtons.YesNo);
+            var result = MessageBox.Show(LocalizationManager.T("SettingsForm.msg.SecurityWarning", "Warning: enabling this will severely reduce the security of your items! Use of this option is at your own risk. Would you like to continue?"), LocalizationManager.T("SettingsForm.title.Warning", "Warning!"), MessageBoxButtons.YesNo);
             if (result == DialogResult.No)
             {
                 affectedBox.Checked = false;
@@ -91,9 +91,9 @@ namespace Steam_Desktop_Authenticator
             if (languageChanged)
             {
                 MessageBox.Show(
-                    LocalizationManager.T("SettingsForm.$RestartNeeded",
+                    LocalizationManager.T("SettingsForm.msg.RestartNeeded",
                         "The new language will be applied the next time you start SDA."),
-                    LocalizationManager.T("SettingsForm.$Title", "Settings"),
+                    LocalizationManager.T("SettingsForm.title.Settings", "Settings"),
                     MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
 

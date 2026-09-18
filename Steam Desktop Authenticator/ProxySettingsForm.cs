@@ -1,4 +1,4 @@
-using SteamAuth;
+﻿using SteamAuth;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -54,8 +54,8 @@ namespace Steam_Desktop_Authenticator
             {
                 // Present but unreadable: wrong or missing passkey, or a corrupt file.
                 // Saving would silently overwrite it, so make that the user's explicit choice.
-                MessageBox.Show("A proxy is saved for this account but could not be read. Saving will replace it.",
-                    "Proxy", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(LocalizationManager.T("ProxySettingsForm.msg.UnreadableSidecar", "A proxy is saved for this account but could not be read. Saving will replace it."),
+                    LocalizationManager.T("ProxySettingsForm.title.Proxy", "Proxy"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
 
             Populate(existing);
@@ -260,7 +260,7 @@ namespace Steam_Desktop_Authenticator
             string host = this.txtHost.Text.Trim();
             if (string.IsNullOrEmpty(host))
             {
-                MessageBox.Show("Please enter a proxy host.", "Proxy", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(LocalizationManager.T("ProxySettingsForm.msg.HostRequired", "Please enter a proxy host."), LocalizationManager.T("ProxySettingsForm.title.Proxy", "Proxy"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -278,9 +278,9 @@ namespace Steam_Desktop_Authenticator
             if (type == ProxyType.Socks5 && settings.HasCredentials)
             {
                 DialogResult go = MessageBox.Show(
-                    "Chromium does not support SOCKS5 authentication, so the built-in browser will not be able to use this proxy. " +
-                    "Steam code generation and confirmations will still work.\n\nSave anyway?",
-                    "Proxy", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+                    LocalizationManager.T("ProxySettingsForm.msg.Socks5AuthUnsupported",
+                        "Chromium does not support SOCKS5 authentication, so the built-in browser will not be able to use this proxy. Steam code generation and confirmations will still work.\n\nSave anyway?"),
+                    LocalizationManager.T("ProxySettingsForm.title.Proxy", "Proxy"), MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
                 if (go != DialogResult.OK) return;
             }
 
@@ -299,14 +299,14 @@ namespace Steam_Desktop_Authenticator
 
             if (this.encrypted && string.IsNullOrEmpty(this.passKey))
             {
-                MessageBox.Show("Your manifest is encrypted but no passkey is loaded, so the proxy cannot be saved securely.",
-                    "Proxy", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(LocalizationManager.T("ProxySettingsForm.msg.NoPasskey", "Your manifest is encrypted but no passkey is loaded, so the proxy cannot be saved securely."),
+                    LocalizationManager.T("ProxySettingsForm.title.Proxy", "Proxy"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
             if (!ProxyStore.Save(this.steamId, settings, this.encrypted, this.passKey))
             {
-                MessageBox.Show("Unable to save the proxy settings.", "Proxy", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(LocalizationManager.T("ProxySettingsForm.msg.SaveFailed", "Unable to save the proxy settings."), LocalizationManager.T("ProxySettingsForm.title.Proxy", "Proxy"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -327,13 +327,13 @@ namespace Steam_Desktop_Authenticator
                 return;
             }
 
-            DialogResult confirm = MessageBox.Show("Remove the proxy for this account?", "Proxy",
+            DialogResult confirm = MessageBox.Show(LocalizationManager.T("ProxySettingsForm.msg.ConfirmDelete", "Remove the proxy for this account?"), LocalizationManager.T("ProxySettingsForm.title.Proxy", "Proxy"),
                 MessageBoxButtons.OKCancel, MessageBoxIcon.Question);
             if (confirm != DialogResult.OK) return;
 
             if (!ProxyStore.Delete(this.steamId))
             {
-                MessageBox.Show("Unable to delete the proxy settings.", "Proxy", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(LocalizationManager.T("ProxySettingsForm.msg.DeleteFailed", "Unable to delete the proxy settings."), LocalizationManager.T("ProxySettingsForm.title.Proxy", "Proxy"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 

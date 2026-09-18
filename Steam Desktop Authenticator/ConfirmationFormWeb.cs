@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -24,7 +24,7 @@ namespace Steam_Desktop_Authenticator
             // Check for a valid refresh token first
             if (steamAccount.Session.IsRefreshTokenExpired())
             {
-                MessageBox.Show("Your session has expired. Use the login again button under the selected account menu.", "Trade Confirmations", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(LocalizationManager.T("ConfirmationFormWeb.msg.SessionExpired", "Your session has expired. Use the login again button under the selected account menu."), LocalizationManager.T("ConfirmationFormWeb.title.TradeConfirmations", "Trade Confirmations"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Close();
                 return;
             }
@@ -38,7 +38,7 @@ namespace Steam_Desktop_Authenticator
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message, "Steam Login Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(ex.Message, LocalizationManager.T("ConfirmationFormWeb.title.SteamLoginError", "Steam Login Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                     this.Close();
                     return;
                 }
@@ -145,12 +145,12 @@ namespace Steam_Desktop_Authenticator
                 bool result = await steamAccount.AcceptConfirmation(confirmation);
                 if (!result)
                 {
-                    MessageBox.Show("Failed to accept. Your session may have expired, or Steam may require you to accept the trade restrictions popup in a browser first (log in at steamcommunity.com → Inventory → Trade Offers).", "Trade Confirmations", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(LocalizationManager.T("ConfirmationFormWeb.msg.AcceptFailed", "Failed to accept. Your session may have expired, or Steam may require you to accept the trade restrictions popup in a browser first (log in at steamcommunity.com → Inventory → Trade Offers)."), LocalizationManager.T("ConfirmationFormWeb.title.TradeConfirmations", "Trade Confirmations"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error accepting: " + ex.Message, "Trade Confirmations", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(string.Format(LocalizationManager.T("ConfirmationFormWeb.msg.AcceptError", "Error accepting: {0}"), ex.Message), LocalizationManager.T("ConfirmationFormWeb.title.TradeConfirmations", "Trade Confirmations"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
@@ -169,12 +169,12 @@ namespace Steam_Desktop_Authenticator
                 bool result = await steamAccount.DenyConfirmation(confirmation);
                 if (!result)
                 {
-                    MessageBox.Show("Failed to deny confirmation. Your session may have expired.", "Trade Confirmations", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(LocalizationManager.T("ConfirmationFormWeb.msg.DenyFailed", "Failed to deny confirmation. Your session may have expired."), LocalizationManager.T("ConfirmationFormWeb.title.TradeConfirmations", "Trade Confirmations"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error denying: " + ex.Message, "Trade Confirmations", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(string.Format(LocalizationManager.T("ConfirmationFormWeb.msg.DenyError", "Error denying: {0}"), ex.Message), LocalizationManager.T("ConfirmationFormWeb.title.TradeConfirmations", "Trade Confirmations"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {

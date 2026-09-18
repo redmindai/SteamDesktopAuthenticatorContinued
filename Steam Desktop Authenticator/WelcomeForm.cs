@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -61,7 +61,7 @@ namespace Steam_Desktop_Authenticator
                 else
                 {
                     // Could not find either.
-                    MessageBox.Show("This folder does not contain either a manifest.json or an maFiles folder.\nPlease select the location where you had Steam Desktop Authenticator installed.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show(LocalizationManager.T("WelcomeForm.msg.FolderInvalid", "This folder does not contain either a manifest.json or an maFiles folder.\nPlease select the location where you had Steam Desktop Authenticator installed."), LocalizationManager.T("WelcomeForm.title.Error", "Error"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
 
@@ -92,13 +92,13 @@ namespace Steam_Desktop_Authenticator
                     // Manifest file was corrupted, generate a new one.
                     try
                     {
-                        MessageBox.Show("Your settings were unexpectedly corrupted and were reset to defaults.", "Steam Desktop Authenticator", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                        MessageBox.Show(LocalizationManager.T("WelcomeForm.msg.SettingsCorrupted", "Your settings were unexpectedly corrupted and were reset to defaults."), LocalizationManager.T("WelcomeForm.title.App", "Steam Desktop Authenticator"), MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                         man = Manifest.GenerateNewManifest(true);
                     }
                     catch (MaFileEncryptedException)
                     {
                         // An maFile was encrypted, we're fucked.
-                        MessageBox.Show("Sorry, but SDA was unable to recover your accounts since you used encryption.\nYou'll need to recover your Steam accounts by removing the authenticator.\nClick OK to view instructions.", "Steam Desktop Authenticator", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(LocalizationManager.T("WelcomeForm.msg.CannotRecover", "Sorry, but SDA was unable to recover your accounts since you used encryption.\nYou'll need to recover your Steam accounts by removing the authenticator.\nClick OK to view instructions."), LocalizationManager.T("WelcomeForm.title.App", "Steam Desktop Authenticator"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                         System.Diagnostics.Process.Start(@"https://github.com/Jessecar96/SteamDesktopAuthenticator/wiki/Help!-I'm-locked-out-of-my-account");
                         this.Close();
                         return;
@@ -106,7 +106,7 @@ namespace Steam_Desktop_Authenticator
                 }
 
                 // All done!
-                MessageBox.Show("All accounts and settings have been imported! Click OK to continue.", "Import accounts", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(LocalizationManager.T("WelcomeForm.msg.AccountsImported", "All accounts and settings have been imported! Click OK to continue."), LocalizationManager.T("WelcomeForm.title.ImportAccounts", "Import accounts"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 showMainForm();
             }
 
