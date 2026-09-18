@@ -245,14 +245,14 @@ namespace Steam_Desktop_Authenticator
             string passKey = null;
             if (manifest.Entries.Count == 0)
             {
-                passKey = manifest.PromptSetupPassKey("Please enter an encryption passkey. Leave blank or hit cancel to not encrypt (VERY INSECURE).");
+                passKey = manifest.PromptSetupPassKey(LocalizationManager.T("LoginForm.prompt.SetupPasskey", "Please enter an encryption passkey. Leave blank or hit cancel to not encrypt (VERY INSECURE)."));
             }
             else if (manifest.Entries.Count > 0 && manifest.Encrypted)
             {
                 bool passKeyValid = false;
                 while (!passKeyValid)
                 {
-                    InputForm passKeyForm = new InputForm("Please enter your current encryption passkey.");
+                    InputForm passKeyForm = new InputForm(LocalizationManager.T("LoginForm.prompt.CurrentPasskey", "Please enter your current encryption passkey."));
                     passKeyForm.ShowDialog();
                     if (!passKeyForm.Canceled)
                     {
@@ -289,7 +289,7 @@ namespace Steam_Desktop_Authenticator
             AuthenticatorLinker.FinalizeResult finalizeResponse = AuthenticatorLinker.FinalizeResult.GeneralFailure;
             while (finalizeResponse != AuthenticatorLinker.FinalizeResult.Success)
             {
-                InputForm smsCodeForm = new InputForm("Please input the SMS code sent to your phone.");
+                InputForm smsCodeForm = new InputForm(LocalizationManager.T("LoginForm.prompt.SmsCode", "Please input the SMS code sent to your phone."));
                 smsCodeForm.ShowDialog();
                 if (smsCodeForm.Canceled)
                 {
@@ -298,7 +298,7 @@ namespace Steam_Desktop_Authenticator
                     return;
                 }
 
-                InputForm confirmRevocationCode = new InputForm("Please enter your revocation code to ensure you've saved it.");
+                InputForm confirmRevocationCode = new InputForm(LocalizationManager.T("LoginForm.prompt.ConfirmRevocationCode", "Please enter your revocation code to ensure you've saved it."));
                 confirmRevocationCode.ShowDialog();
                 if (confirmRevocationCode.txtBox.Text.ToUpper() != linker.LinkedAccount.RevocationCode)
                 {
@@ -341,14 +341,14 @@ namespace Steam_Desktop_Authenticator
             string passKey = null;
             if (man.Entries.Count == 0)
             {
-                passKey = man.PromptSetupPassKey("Please enter an encryption passkey. Leave blank or hit cancel to not encrypt (VERY INSECURE).");
+                passKey = man.PromptSetupPassKey(LocalizationManager.T("LoginForm.prompt.SetupPasskey", "Please enter an encryption passkey. Leave blank or hit cancel to not encrypt (VERY INSECURE)."));
             }
             else if (man.Entries.Count > 0 && man.Encrypted)
             {
                 bool passKeyValid = false;
                 while (!passKeyValid)
                 {
-                    InputForm passKeyForm = new InputForm("Please enter your current encryption passkey.");
+                    InputForm passKeyForm = new InputForm(LocalizationManager.T("LoginForm.prompt.CurrentPasskey", "Please enter your current encryption passkey."));
                     passKeyForm.ShowDialog();
                     if (!passKeyForm.Canceled)
                     {

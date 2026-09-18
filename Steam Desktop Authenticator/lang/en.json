@@ -174,5 +174,20 @@
   "WelcomeForm.title.App": "Steam Desktop Authenticator",
   "WelcomeForm.msg.CannotRecover": "Sorry, but SDA was unable to recover your accounts since you used encryption.\nYou'll need to recover your Steam accounts by removing the authenticator.\nClick OK to view instructions.",
   "WelcomeForm.msg.AccountsImported": "All accounts and settings have been imported! Click OK to continue.",
-  "WelcomeForm.title.ImportAccounts": "Import accounts"
+  "WelcomeForm.title.ImportAccounts": "Import accounts",
+  "LoginForm.prompt.SetupPasskey": "Please enter an encryption passkey. Leave blank or hit cancel to not encrypt (VERY INSECURE).",
+  "LoginForm.prompt.CurrentPasskey": "Please enter your current encryption passkey.",
+  "LoginForm.prompt.SmsCode": "Please input the SMS code sent to your phone.",
+  "LoginForm.prompt.ConfirmRevocationCode": "Please enter your revocation code to ensure you've saved it.",
+  "MainForm.prompt.CurrentPasskey": "Enter current passkey",
+  "MainForm.prompt.NewPasskey": "Enter new passkey, or leave blank to remove encryption.",
+  "MainForm.prompt.ConfirmNewPasskey": "Confirm new passkey, or leave blank to remove encryption.",
+  "MainForm.prompt.RemoveSteamGuardCode": "Removing Steam Guard from {0}. Enter this confirmation code: {1}",
+  "Manifest.prompt.SetupPasskeyMigration": "This version of SDA has encryption. Please enter a passkey below, or hit cancel to remain unencrypted",
+  "Manifest.prompt.EncryptionPasskey": "Please enter your encryption passkey.",
+  "Manifest.title.EncryptionPasskey": "Encryption passkey",
+  "Manifest.prompt.SetupPasskeyDefault": "Enter passkey, or hit cancel to remain unencrypted.",
+  "Manifest.prompt.ConfirmNewPasskey": "Confirm new passkey.",
+  "UserFormAuthenticator.prompt.EmailCodeRetry": "The code you provided was invalid. Enter the code sent to your email:",
+  "UserFormAuthenticator.prompt.EmailCode": "Enter the code sent to your email:"
 }

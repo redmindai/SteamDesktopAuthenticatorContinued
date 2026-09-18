@@ -50,11 +50,9 @@ namespace Steam_Desktop_Authenticator
 
         public Task<string> GetEmailCodeAsync(string email, bool previousCodeWasIncorrect)
         {
-            string message = "Enter the code sent to your email:";
-            if (previousCodeWasIncorrect)
-            {
-                message = "The code you provided was invalid. Enter the code sent to your email:";
-            }
+            string message = previousCodeWasIncorrect
+                ? LocalizationManager.T("UserFormAuthenticator.prompt.EmailCodeRetry", "The code you provided was invalid. Enter the code sent to your email:")
+                : LocalizationManager.T("UserFormAuthenticator.prompt.EmailCode", "Enter the code sent to your email:");
 
             InputForm emailForm = new InputForm(message);
             emailForm.ShowDialog();

@@ -174,5 +174,20 @@
   "WelcomeForm.title.App": "Steam Desktop Authenticator",
   "WelcomeForm.msg.CannotRecover": "На жаль, SDA не зміг відновити ваші акаунти, бо ви використовували шифрування.\nВам доведеться відновити акаунти Steam, прибравши автентифікатор.\nНатисніть OK, щоб переглянути інструкції.",
   "WelcomeForm.msg.AccountsImported": "Усі акаунти й налаштування імпортовано! Натисніть OK, щоб продовжити.",
-  "WelcomeForm.title.ImportAccounts": "Імпорт акаунтів"
+  "WelcomeForm.title.ImportAccounts": "Імпорт акаунтів",
+  "LoginForm.prompt.SetupPasskey": "Введіть ключ шифрування. Залиште порожнім або натисніть «Скасувати», щоб не шифрувати (ДУЖЕ НЕБЕЗПЕЧНО).",
+  "LoginForm.prompt.CurrentPasskey": "Введіть ваш поточний ключ шифрування.",
+  "LoginForm.prompt.SmsCode": "Введіть код з SMS, надісланий на ваш телефон.",
+  "LoginForm.prompt.ConfirmRevocationCode": "Введіть ваш revocation code, щоб підтвердити, що ви його зберегли.",
+  "MainForm.prompt.CurrentPasskey": "Введіть поточний ключ шифрування",
+  "MainForm.prompt.NewPasskey": "Введіть новий ключ шифрування або залиште порожнім, щоб прибрати шифрування.",
+  "MainForm.prompt.ConfirmNewPasskey": "Підтвердіть новий ключ шифрування або залиште порожнім, щоб прибрати шифрування.",
+  "MainForm.prompt.RemoveSteamGuardCode": "Прибирання Steam Guard з акаунта {0}. Введіть цей код підтвердження: {1}",
+  "Manifest.prompt.SetupPasskeyMigration": "Ця версія SDA підтримує шифрування. Введіть ключ шифрування нижче або натисніть «Скасувати», щоб лишити без шифрування",
+  "Manifest.prompt.EncryptionPasskey": "Введіть ваш ключ шифрування.",
+  "Manifest.title.EncryptionPasskey": "Ключ шифрування",
+  "Manifest.prompt.SetupPasskeyDefault": "Введіть ключ шифрування або натисніть «Скасувати», щоб лишити без шифрування.",
+  "Manifest.prompt.ConfirmNewPasskey": "Підтвердіть новий ключ шифрування.",
+  "UserFormAuthenticator.prompt.EmailCodeRetry": "Наданий код виявився недійсним. Введіть код, надісланий на вашу пошту:",
+  "UserFormAuthenticator.prompt.EmailCode": "Введіть код, надісланий на вашу пошту:"
 }

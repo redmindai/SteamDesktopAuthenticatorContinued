@@ -164,7 +164,7 @@ namespace Steam_Desktop_Authenticator
         {
             if (manifest.Encrypted)
             {
-                InputForm currentPassKeyForm = new InputForm("Enter current passkey", true);
+                InputForm currentPassKeyForm = new InputForm(LocalizationManager.T("MainForm.prompt.CurrentPasskey", "Enter current passkey"), true);
                 currentPassKeyForm.ShowDialog();
 
                 if (currentPassKeyForm.Canceled)
@@ -174,7 +174,7 @@ namespace Steam_Desktop_Authenticator
 
                 string curPassKey = currentPassKeyForm.txtBox.Text;
 
-                InputForm changePassKeyForm = new InputForm("Enter new passkey, or leave blank to remove encryption.");
+                InputForm changePassKeyForm = new InputForm(LocalizationManager.T("MainForm.prompt.NewPasskey", "Enter new passkey, or leave blank to remove encryption."));
                 changePassKeyForm.ShowDialog();
 
                 if (changePassKeyForm.Canceled && !string.IsNullOrEmpty(changePassKeyForm.txtBox.Text))
@@ -182,7 +182,7 @@ namespace Steam_Desktop_Authenticator
                     return;
                 }
 
-                InputForm changePassKeyForm2 = new InputForm("Confirm new passkey, or leave blank to remove encryption.");
+                InputForm changePassKeyForm2 = new InputForm(LocalizationManager.T("MainForm.prompt.ConfirmNewPasskey", "Confirm new passkey, or leave blank to remove encryption."));
                 changePassKeyForm2.ShowDialog();
 
                 if (changePassKeyForm2.Canceled && !string.IsNullOrEmpty(changePassKeyForm.txtBox.Text))
@@ -335,7 +335,7 @@ namespace Steam_Desktop_Authenticator
             if (scheme != 0)
             {
                 string confCode = currentAccount.GenerateSteamGuardCode();
-                InputForm confirmationDialog = new InputForm(String.Format("Removing Steam Guard from {0}. Enter this confirmation code: {1}", currentAccount.AccountName, confCode));
+                InputForm confirmationDialog = new InputForm(String.Format(LocalizationManager.T("MainForm.prompt.RemoveSteamGuardCode", "Removing Steam Guard from {0}. Enter this confirmation code: {1}"), currentAccount.AccountName, confCode));
                 confirmationDialog.ShowDialog();
 
                 if (confirmationDialog.Canceled)

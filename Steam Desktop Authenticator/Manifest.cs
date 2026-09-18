@@ -143,7 +143,7 @@ namespace Steam_Desktop_Authenticator
                     if (newManifest.Entries.Count > 0)
                     {
                         newManifest.Save();
-                        newManifest.PromptSetupPassKey("This version of SDA has encryption. Please enter a passkey below, or hit cancel to remain unencrypted");
+                        newManifest.PromptSetupPassKey(LocalizationManager.T("Manifest.prompt.SetupPasskeyMigration", "This version of SDA has encryption. Please enter a passkey below, or hit cancel to remain unencrypted"));
                     }
                 }
             }
@@ -170,7 +170,7 @@ namespace Steam_Desktop_Authenticator
             string passKey = null;
             while (!passKeyValid)
             {
-                InputForm passKeyForm = new InputForm("Please enter your encryption passkey.", true, "Encryption passkey");
+                InputForm passKeyForm = new InputForm(LocalizationManager.T("Manifest.prompt.EncryptionPasskey", "Please enter your encryption passkey."), true, LocalizationManager.T("Manifest.title.EncryptionPasskey", "Encryption passkey"));
                 passKeyForm.ShowDialog();
                 if (!passKeyForm.Canceled)
                 {
@@ -189,8 +189,11 @@ namespace Steam_Desktop_Authenticator
             return passKey;
         }
 
-        public string PromptSetupPassKey(string initialPrompt = "Enter passkey, or hit cancel to remain unencrypted.")
+        public string PromptSetupPassKey(string initialPrompt = null)
         {
+            if (initialPrompt == null)
+                initialPrompt = LocalizationManager.T("Manifest.prompt.SetupPasskeyDefault", "Enter passkey, or hit cancel to remain unencrypted.");
+
             InputForm newPassKeyForm = new InputForm(initialPrompt);
             newPassKeyForm.ShowDialog();
             if (newPassKeyForm.Canceled || newPassKeyForm.txtBox.Text.Length == 0)
@@ -199,7 +202,7 @@ namespace Steam_Desktop_Authenticator
                 return null;
             }
 
-            InputForm newPassKeyForm2 = new InputForm("Confirm new passkey.");
+            InputForm newPassKeyForm2 = new InputForm(LocalizationManager.T("Manifest.prompt.ConfirmNewPasskey", "Confirm new passkey."));
             newPassKeyForm2.ShowDialog();
             if (newPassKeyForm2.Canceled)
             {
