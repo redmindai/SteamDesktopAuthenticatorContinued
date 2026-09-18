@@ -75,6 +75,8 @@ namespace Steam_Desktop_Authenticator
                 }
             }
 
+            LocalizationManager.Load(man.Language);
+
             if (man.FirstRun)
             {
                 if (man.Entries.Count > 0)

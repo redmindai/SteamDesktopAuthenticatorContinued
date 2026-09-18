@@ -88,6 +88,7 @@ namespace Steam_Desktop_Authenticator
 
             // The connection mode comes first: everything below it only matters for a proxy.
             this.radDirect = new RadioButton();
+            this.radDirect.Name = "radDirect";
             this.radDirect.Text = "Direct connection (host IP)";
             this.radDirect.Location = new Point(labelLeft, y);
             this.radDirect.AutoSize = true;
@@ -97,6 +98,7 @@ namespace Steam_Desktop_Authenticator
             y += 22;
 
             this.radProxy = new RadioButton();
+            this.radProxy.Name = "radProxy";
             this.radProxy.Text = "Use proxy";
             this.radProxy.Location = new Point(labelLeft, y);
             this.radProxy.AutoSize = true;
@@ -104,7 +106,7 @@ namespace Steam_Desktop_Authenticator
             this.Controls.Add(this.radProxy);
             y += 28;
 
-            this.Controls.Add(MakeLabel("Type", labelLeft, y + 3));
+            this.Controls.Add(MakeLabel("Type", labelLeft, y + 3, "lblType"));
             this.cmbType = new ComboBox();
             this.cmbType.DropDownStyle = ComboBoxStyle.DropDownList;
             this.cmbType.Location = new Point(fieldLeft, y);
@@ -115,14 +117,14 @@ namespace Steam_Desktop_Authenticator
             this.Controls.Add(this.cmbType);
             y += rowHeight;
 
-            this.Controls.Add(MakeLabel("Host", labelLeft, y + 3));
+            this.Controls.Add(MakeLabel("Host", labelLeft, y + 3, "lblHost"));
             this.txtHost = new TextBox();
             this.txtHost.Location = new Point(fieldLeft, y);
             this.txtHost.Size = new Size(fieldWidth, 23);
             this.Controls.Add(this.txtHost);
             y += rowHeight;
 
-            this.Controls.Add(MakeLabel("Port", labelLeft, y + 3));
+            this.Controls.Add(MakeLabel("Port", labelLeft, y + 3, "lblPort"));
             this.numPort = new NumericUpDown();
             this.numPort.Location = new Point(fieldLeft, y);
             this.numPort.Size = new Size(80, 23);
@@ -132,14 +134,14 @@ namespace Steam_Desktop_Authenticator
             this.Controls.Add(this.numPort);
             y += rowHeight;
 
-            this.Controls.Add(MakeLabel("Username", labelLeft, y + 3));
+            this.Controls.Add(MakeLabel("Username", labelLeft, y + 3, "lblUsername"));
             this.txtUsername = new TextBox();
             this.txtUsername.Location = new Point(fieldLeft, y);
             this.txtUsername.Size = new Size(fieldWidth, 23);
             this.Controls.Add(this.txtUsername);
             y += rowHeight;
 
-            this.Controls.Add(MakeLabel("Password", labelLeft, y + 3));
+            this.Controls.Add(MakeLabel("Password", labelLeft, y + 3, "lblPassword"));
             this.txtPassword = new TextBox();
             this.txtPassword.Location = new Point(fieldLeft, y);
             this.txtPassword.Size = new Size(fieldWidth, 23);
@@ -148,6 +150,7 @@ namespace Steam_Desktop_Authenticator
             y += rowHeight + 8;
 
             this.btnDelete = new Button();
+            this.btnDelete.Name = persist ? "btnDelete" : "btnClear";
             this.btnDelete.Text = persist ? "Delete" : "Clear";
             this.btnDelete.Location = new Point(labelLeft, y);
             this.btnDelete.Size = new Size(85, 28);
@@ -155,6 +158,7 @@ namespace Steam_Desktop_Authenticator
             this.Controls.Add(this.btnDelete);
 
             this.btnCancel = new Button();
+            this.btnCancel.Name = "btnCancel";
             this.btnCancel.Text = "Cancel";
             this.btnCancel.Location = new Point(155, y);
             this.btnCancel.Size = new Size(85, 28);
@@ -162,6 +166,7 @@ namespace Steam_Desktop_Authenticator
             this.Controls.Add(this.btnCancel);
 
             this.btnSave = new Button();
+            this.btnSave.Name = persist ? "btnSave" : "btnOk";
             this.btnSave.Text = persist ? "Save" : "OK";
             this.btnSave.Location = new Point(246, y);
             this.btnSave.Size = new Size(80, 28);
@@ -171,12 +176,15 @@ namespace Steam_Desktop_Authenticator
             this.AcceptButton = this.btnSave;
             this.CancelButton = this.btnCancel;
 
+            this.Name = "ProxySettingsForm";
+            LocalizationManager.ApplyTo(this);
             DarkTheme.Apply(this);
         }
 
-        private static Label MakeLabel(string text, int x, int y)
+        private static Label MakeLabel(string text, int x, int y, string name)
         {
             Label label = new Label();
+            label.Name = name;
             label.Text = text;
             label.Location = new Point(x, y);
             label.AutoSize = true;

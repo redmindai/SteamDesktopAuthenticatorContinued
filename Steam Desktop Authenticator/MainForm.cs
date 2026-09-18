@@ -106,6 +106,7 @@ namespace Steam_Desktop_Authenticator
                 menuDarkMode.Checked = m.UseDarkTheme;
             }
             catch { /* use defaults: dark theme, checked */ }
+            LocalizationManager.ApplyTo(this, menuAccountContext, menuStripTray);
             DarkTheme.Apply(this);
             // Context menus are not part of the Controls tree, so they need theming by hand.
             DarkTheme.Apply(menuAccountContext);

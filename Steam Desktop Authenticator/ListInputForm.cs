@@ -23,6 +23,7 @@ namespace Steam_Desktop_Authenticator
 
         private void ListInputForm_Load(object sender, EventArgs e)
         {
+            LocalizationManager.ApplyTo(this);
             DarkTheme.Apply(this);
             foreach (var item in Items)
             {

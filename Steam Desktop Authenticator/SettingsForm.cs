@@ -21,6 +21,8 @@ namespace Steam_Desktop_Authenticator
             chkConfirmMarket.Checked = manifest.AutoConfirmMarketTransactions;
             chkConfirmTrades.Checked = manifest.AutoConfirmTrades;
 
+            PopulateLanguages();
+
             SetControlsEnabledState(chkPeriodicChecking.Checked);
 
             fullyLoaded = true;
@@ -28,7 +30,30 @@ namespace Steam_Desktop_Authenticator
 
         private void SettingsForm_Load(object sender, EventArgs e)
         {
+            LocalizationManager.ApplyTo(this);
             DarkTheme.Apply(this);
+        }
+
+        private void PopulateLanguages()
+        {
+            cmbLanguage.Items.Clear();
+            cmbLanguage.Items.AddRange(LocalizationManager.AvailableLanguages);
+
+            string saved = string.IsNullOrWhiteSpace(manifest.Language)
+                ? LocalizationManager.DefaultLanguage
+                : manifest.Language;
+
+            for (int i = 0; i < cmbLanguage.Items.Count; i++)
+            {
+                var option = (LocalizationManager.LanguageOption)cmbLanguage.Items[i];
+                if (option.Code == saved)
+                {
+                    cmbLanguage.SelectedIndex = i;
+                    return;
+                }
+            }
+
+            cmbLanguage.SelectedIndex = 0;
         }
 
         private void SetControlsEnabledState(bool enabled)
@@ -54,7 +79,24 @@ namespace Steam_Desktop_Authenticator
             manifest.CheckAllAccounts = chkCheckAll.Checked;
             manifest.AutoConfirmMarketTransactions = chkConfirmMarket.Checked;
             manifest.AutoConfirmTrades = chkConfirmTrades.Checked;
+
+            var language = cmbLanguage.SelectedItem as LocalizationManager.LanguageOption;
+            bool languageChanged = language != null && language.Code != manifest.Language;
+            if (language != null) manifest.Language = language.Code;
+
             manifest.Save();
+
+            // Open windows keep the strings they were built with; re-translating them live
+            // is not worth the complexity for a setting changed once.
+            if (languageChanged)
+            {
+                MessageBox.Show(
+                    LocalizationManager.T("SettingsForm.$RestartNeeded",
+                        "The new language will be applied the next time you start SDA."),
+                    LocalizationManager.T("SettingsForm.$Title", "Settings"),
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+
             this.Close();
         }
 

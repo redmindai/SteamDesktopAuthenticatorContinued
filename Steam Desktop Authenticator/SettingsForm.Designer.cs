@@ -36,6 +36,8 @@ namespace Steam_Desktop_Authenticator
             this.chkCheckAll = new System.Windows.Forms.CheckBox();
             this.chkConfirmMarket = new System.Windows.Forms.CheckBox();
             this.chkConfirmTrades = new System.Windows.Forms.CheckBox();
+            this.lblLanguage = new System.Windows.Forms.Label();
+            this.cmbLanguage = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.numPeriodicInterval)).BeginInit();
             this.SuspendLayout();
             // 
@@ -55,7 +57,7 @@ namespace Steam_Desktop_Authenticator
             this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.btnSave.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSave.Location = new System.Drawing.Point(12, 152);
+            this.btnSave.Location = new System.Drawing.Point(12, 190);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(224, 38);
             this.btnSave.TabIndex = 1;
@@ -123,9 +125,27 @@ namespace Steam_Desktop_Authenticator
             // 
             // SettingsForm
             // 
+            //
+            // lblLanguage
+            //
+            this.lblLanguage.AutoSize = true;
+            this.lblLanguage.Location = new System.Drawing.Point(12, 157);
+            this.lblLanguage.Name = "lblLanguage";
+            this.lblLanguage.Size = new System.Drawing.Size(58, 13);
+            this.lblLanguage.Text = "Language:";
+            //
+            // cmbLanguage
+            //
+            this.cmbLanguage.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbLanguage.Location = new System.Drawing.Point(90, 153);
+            this.cmbLanguage.Name = "cmbLanguage";
+            this.cmbLanguage.Size = new System.Drawing.Size(146, 21);
+            this.cmbLanguage.TabIndex = 6;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(244, 202);
+            this.ClientSize = new System.Drawing.Size(244, 240);
+            this.Controls.Add(this.cmbLanguage);
+            this.Controls.Add(this.lblLanguage);
             this.Controls.Add(this.chkConfirmTrades);
             this.Controls.Add(this.chkConfirmMarket);
             this.Controls.Add(this.chkCheckAll);
@@ -156,5 +176,7 @@ namespace Steam_Desktop_Authenticator
         private System.Windows.Forms.CheckBox chkCheckAll;
         private System.Windows.Forms.CheckBox chkConfirmMarket;
         private System.Windows.Forms.CheckBox chkConfirmTrades;
+        private System.Windows.Forms.Label lblLanguage;
+        private System.Windows.Forms.ComboBox cmbLanguage;
     }
 }

@@ -32,6 +32,7 @@ namespace Steam_Desktop_Authenticator
 
         private void ImportAccountForm_Load(object sender, EventArgs e)
         {
+            LocalizationManager.ApplyTo(this);
             DarkTheme.Apply(this);
         }
 

@@ -20,6 +20,7 @@ namespace Steam_Desktop_Authenticator
 
         private void PhoneInputForm_Load(object sender, EventArgs e)
         {
+            LocalizationManager.ApplyTo(this);
             DarkTheme.Apply(this);
         }
 

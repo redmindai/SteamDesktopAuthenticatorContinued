@@ -37,6 +37,7 @@ namespace Steam_Desktop_Authenticator
 
         private void TradePopupForm_Load(object sender, EventArgs e)
         {
+            LocalizationManager.ApplyTo(this);
             DarkTheme.Apply(this);
             this.Location = (Point)Size.Subtract(Screen.GetWorkingArea(this).Size, this.Size);
         }

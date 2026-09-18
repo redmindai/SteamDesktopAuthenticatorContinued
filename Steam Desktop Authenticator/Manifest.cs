@@ -39,6 +39,10 @@ namespace Steam_Desktop_Authenticator
         [JsonProperty("use_dark_theme")]
         public bool UseDarkTheme { get; set; } = true;
 
+        /// <summary>UI language code, e.g. "en" or "uk". Empty means English.</summary>
+        [JsonProperty("language")]
+        public string Language { get; set; } = LocalizationManager.DefaultLanguage;
+
         private static Manifest _manifest { get; set; }
 
         public static string GetExecutableDir()
@@ -102,6 +106,7 @@ namespace Steam_Desktop_Authenticator
             newManifest.AutoConfirmMarketTransactions = false;
             newManifest.AutoConfirmTrades = false;
             newManifest.UseDarkTheme = true;
+            newManifest.Language = LocalizationManager.DefaultLanguage;
             newManifest.Entries = new List<ManifestEntry>();
             newManifest.FirstRun = true;
 
